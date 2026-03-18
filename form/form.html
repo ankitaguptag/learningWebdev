@@ -91,7 +91,12 @@
     </div>
   </body>
   <script>
-    function myfunction() {
+    /* Preventing a default form submission (which reloads the page) is commonly achieved using JavaScript to 
+       stop the event, allowing for custom validation or AJAX submissions instead. 
+       The most standard and recommended method is using event.preventDefault(). 
+    */
+    function myfunction(event) {
+       event.preventDefault(); 
       //get all values from form
       var id = document.getElementById("id").value;
       var firstName = document.getElementById("firstName").value;
@@ -145,12 +150,12 @@
         document.getElementById("error").innerHTML = "";
       }
 
-      //   if (gender == "") {
-      //    document.getElementById("error").innerHTML = "please select gender";
-      //    return false;
-      //  } else {
-      //    document.getElementById("error").innerHTML = "";
-      //   }
+        if (gender == "") {
+         document.getElementById("error").innerHTML = "please select gender";
+         return false;
+       } else {
+         document.getElementById("error").innerHTML = "";
+        }
 
       if (age == "") {
         document.getElementById("error").innerHTML = "please Enter Age";
