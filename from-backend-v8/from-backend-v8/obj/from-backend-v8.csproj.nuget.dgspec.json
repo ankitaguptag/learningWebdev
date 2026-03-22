@@ -1,23 +1,23 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\avina\\OneDrive\\Documents\\Projects\\ankitaguptag\\learningWebdev\\from-backend-v8\\from-backend-v8\\from-backend-v8.csproj": {}
+    "D:\\Projects\\learningWebdev\\from-backend-v8\\from-backend-v8\\from-backend-v8.csproj": {}
   },
   "projects": {
-    "C:\\Users\\avina\\OneDrive\\Documents\\Projects\\ankitaguptag\\learningWebdev\\from-backend-v8\\from-backend-v8\\from-backend-v8.csproj": {
+    "D:\\Projects\\learningWebdev\\from-backend-v8\\from-backend-v8\\from-backend-v8.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\avina\\OneDrive\\Documents\\Projects\\ankitaguptag\\learningWebdev\\from-backend-v8\\from-backend-v8\\from-backend-v8.csproj",
+        "projectUniqueName": "D:\\Projects\\learningWebdev\\from-backend-v8\\from-backend-v8\\from-backend-v8.csproj",
         "projectName": "from-backend-v8",
-        "projectPath": "C:\\Users\\avina\\OneDrive\\Documents\\Projects\\ankitaguptag\\learningWebdev\\from-backend-v8\\from-backend-v8\\from-backend-v8.csproj",
-        "packagesPath": "C:\\Users\\avina\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\avina\\OneDrive\\Documents\\Projects\\ankitaguptag\\learningWebdev\\from-backend-v8\\from-backend-v8\\obj\\",
+        "projectPath": "D:\\Projects\\learningWebdev\\from-backend-v8\\from-backend-v8\\from-backend-v8.csproj",
+        "packagesPath": "C:\\Users\\ankit\\.nuget\\packages\\",
+        "outputPath": "D:\\Projects\\learningWebdev\\from-backend-v8\\from-backend-v8\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\avina\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\ankit\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
@@ -26,6 +26,7 @@
         ],
         "sources": {
           "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "C:\\Program Files\\dotnet\\library-packs": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
@@ -50,6 +51,18 @@
         "net8.0": {
           "targetAlias": "net8.0",
           "dependencies": {
+            "Microsoft.AspNetCore.Identity.EntityFrameworkCore": {
+              "target": "Package",
+              "version": "[8.0.0, )"
+            },
+            "Microsoft.EntityFrameworkCore.SqlServer": {
+              "target": "Package",
+              "version": "[8.0.0, )"
+            },
+            "Microsoft.VisualStudio.Web.CodeGeneration.Design": {
+              "target": "Package",
+              "version": "[8.0.0, )"
+            },
             "Swashbuckle.AspNetCore": {
               "target": "Package",
               "version": "[6.6.2, )"
@@ -74,7 +87,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.304/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.302/PortableRuntimeIdentifierGraph.json"
         }
       }
     }
