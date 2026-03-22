@@ -1,3 +1,9 @@
+#version 9.0
 from-backend/.vs
 from-backend/from-backend/bin
 from-backend/from-backend/obj
+
+#version 8.0
+from-backend-v8/.vs
+from-backend-v8/from-backend/bin
+from-backend-v8/from-backend/obj
