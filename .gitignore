@@ -5,5 +5,8 @@ from-backend/from-backend/obj
 
 #version 8.0
 from-backend-v8/.vs
-from-backend-v8/from-backend/bin
-from-backend-v8/from-backend/obj
+from-backend-v8/from-backend-v8/bin
+from-backend-v8/from-backend-v8/obj
+
+/from-backend-v8/from-backend-v8/bin
+/from-backend-v8/from-backend-v8/obj
