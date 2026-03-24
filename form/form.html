@@ -111,64 +111,79 @@
           </select>
         </div>
         <div class="col">
-          <label>Admission Date:</label>
+          <label for="admissionDate">Admission Date:</label>
           <input type="date" id="admissionDate" class="form-control" />
-          <span id="dateError" style="color: red"></span></br>
+          <span id="dateError" style="color: red;"></span>
+          <br>
         </div>
       </div>
 
 
-      <button type="submit" class="btn btn-primary text-center">Submit</button>
+      <button type="submit" class="btn btn-primary">Submit</button>
     </form>
 
     <div>
-      <table class="table">
-  <thead>
-    <tr>
-      <th scope="col">StudentId</th>
-      <th scope="col">First Name</th>
-      <th scope="col">Last Name</th>
-      <th scope="col">DOB</th>
-      <th scope="col">Gender</th>
-      <th scope="col">action</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th scope="row">1</th>
-      <td>Ankita</td>
-      <td>Gupta</td>
-      <td>01/03/2004</td>
-      <td>Female</td>
-      <td>
-        <button>Edit</button>
-        <button>delete</button>
-      </td>
-    </tr>
-    <tr>
-      <th scope="row">2</th>
-      <td>Ankita</td>
-      <td>Gupta</td>
-      <td>01/03/2004</td>
-      <td>Female</td>
+      <table class="table table-hover">
+        <thead>
+          <tr>
+            <th scope="col">StudentId</th>
+            <th scope="col">First Name</th>
+            <th scope="col">Last Name</th>
+            <th scope="col">DOB</th>
+            <th scope="col">Gender</th>
+            <th scope="col">Age</th>
+            <th scope="col">Email</th>
+            <th scope="col">Phone</th>
+            <th scope="col">Address</th>
+            <th scope="col">City</th>
+            <th scope="col">State</th>
+            <th scope="col">Course</th>
+            <th scope="col">Admission Date</th>
+            <th scope="col">Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row">1</th>
+            <td>Ankita</td>
+            <td>Gupta</td>
+            <td>01/03/2004</td>
+            <td>Female</td>
+            <td>20</td>
+            <td>anki@gmail.com</td>
+            <td>544321245</td>
+            <td>110</td>
+            <td>Noida</td>
+            <td>UP</td>
+            <td>Bca</td>
+            <td>02/04/2026</td>
             <td>
-        <button>Edit</button>
-        <button>delete</button>
-      </td>
-    </tr>
-    <tr>
-      <th scope="row">3</th>
-      <td>Ankita</td>
-      <td>Gupta</td>
-      <td>01/03/2004</td>
-      <td>Female</td>
-         <td>
-        <button>Edit</button>
-        <button>delete</button>
-      </td>
-    </tr>
-  </tbody>
-</table>
+              <button type="button" class="btn btn-primary">Edit</button>
+              <button type="button" class="btn btn-danger">delete</button>
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">1</th>
+            <td>Nandu</td>
+            <td>Gupti</td>
+            <td>05/02/2005</td>
+            <td>Female</td>
+            <td>18</td>
+            <td>nand@gmail.com</td>
+            <td>986768574</td>
+            <td>110</td>
+            <td>Noida</td>
+            <td>MP</td>
+            <td>Mca</td>
+            <td>04/02/2024</td>
+            <td>
+              <button type="button" class="btn btn-primary">Edit</button>
+              <button type="button" class="btn btn-danger">delete</button>
+            </td>
+          </tr>
+
+        </tbody>
+      </table>
     </div>
   </div>
 </body>
@@ -192,7 +207,7 @@
     var city = document.getElementById("city").value;
     var state = document.getElementById("state").value;
     var course = document.getElementById("course").value;
-    var addmissionDate = document.getElementById("admissionDate").value;
+    var admissionDate = document.getElementById("admissionDate").value;
     var gender = "";
     var genderRes = document.getElementsByName("gender");
     for (i = 0; i < genderRes.length; i++) {
@@ -286,12 +301,12 @@
       document.getElementById("error").innerHTML = "";
     }
 
-    if (admissionDate == "") {
-      document.getElementById("error").innerHTML =
-        "please Enter Admission_Date";
+    if (admissionDate === "") {
+      document.getElementById("dateError").innerHTML =
+        "Please enter admission date";
       return false;
     } else {
-      document.getElementById("error").innerHTML = "";
+      document.getElementById("dateError").innerHTML = "";
     }
 
     var student = {
