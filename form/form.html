@@ -192,7 +192,7 @@
      stop the event, allowing for custom validation or AJAX submissions instead. 
      The most standard and recommended method is using event.preventDefault(). 
   */
-  function myfunction(event) {
+  async function  myfunction(event) {
     event.preventDefault();
     //get all values from form
     var id = document.getElementById("id").value;
@@ -310,22 +310,44 @@
     }
 
     var student = {
-      ID: id,
+      StudentID: id,
       FirstName: firstName,
       LastName: lastName,
-      gender: gender,
+      Gender: gender,
       Dateofbirth: dob,
-      age: age,
-      email: email,
-      phone: phone,
+      Age: age,
+      Email: email,
+      Phone: phone,
       Address: address,
-      city: city,
-      state: state,
-      course: course,
+      City: city,
+      State: state,
+      Course: course,
       AdmiDate: admissionDate
-    };
+    }
 
-    alert(JSON.stringify(student, null, 2));
+    
+      const response = await fetch('https://localhost:7222/api/Student', {
+        method: 'POST',
+        headers: {
+          'accept': '*/*',
+          'Content-Type': 'application/json'
+        },
+    body: JSON.stringify(student)
+
+      });
+      if(response.ok){
+        const res =  await response.json();
+        console.log("Server Response:", res.message); // Accesses "Student Created Successfully"
+
+            // 3. User Feedback
+           // alert(res.message);
+      }
+      else{
+       console.log("Server Response:server error"); 
+      }
+    
+
+    //alert(JSON.stringify(student, null, 2));
     // alert(
     //   "Id : " +
     //     id +

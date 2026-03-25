@@ -2,6 +2,21 @@ using from_backend_v8.Data;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
+// 1. ADD THIS: Define a CORS policy name
+var myAllowSpecificOrigins = "_myAllowSpecificOrigins";
+
+// 2. ADD THIS: Configure the CORS service
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(name: myAllowSpecificOrigins,
+                      policy =>
+                      {
+                          policy.WithOrigins("http://127.0.0.1:5500") // Your frontend URL
+                                .AllowAnyHeader()
+                                .AllowAnyMethod();
+                      });
+});
+
 
 // Add services to the container.
 
@@ -21,6 +36,9 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+// 3. ADD THIS: Use the CORS middleware 
+// IMPORTANT: Put this AFTER UseRouting (if used) and BEFORE UseAuthorization
+app.UseCors(myAllowSpecificOrigins);
 
 app.UseHttpsRedirection();
 
