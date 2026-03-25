@@ -26,6 +26,8 @@
       background-color: #f9f9f9;
     }
   </style>
+
+
 </head>
 
 <body>
@@ -192,6 +194,25 @@
      stop the event, allowing for custom validation or AJAX submissions instead. 
      The most standard and recommended method is using event.preventDefault(). 
   */
+ getStudent();
+ async function getStudent(){
+  const response = await fetch('https://localhost:7222/api/Student',{
+    method:'GET',
+    headers:{
+      'accept':'*/*'
+    }
+  });
+  if (response.ok){
+    const student = await response.json();
+    console.log("Student retrieved:", student);
+    
+  }
+  else{
+    console.error("Failed to fetch students:", response.status);
+  }
+}
+
+
   async function  myfunction(event) {
     event.preventDefault();
     //get all values from form
