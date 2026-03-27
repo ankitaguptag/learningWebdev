@@ -144,8 +144,9 @@
             <th scope="col">Action</th>
           </tr>
         </thead>
-        <tbody>
-          <tr>
+        <tbody id="studentTableBody">
+         
+          <!-- <tr>
             <th scope="row">1</th>
             <td>Ankita</td>
             <td>Gupta</td>
@@ -182,7 +183,7 @@
               <button type="button" class="btn btn-primary">Edit</button>
               <button type="button" class="btn btn-danger">delete</button>
             </td>
-          </tr>
+          </tr> -->
 
         </tbody>
       </table>
@@ -203,19 +204,44 @@
     }
   });
   if (response.ok){
-    const student = await response.json();
-    console.log("Student retrieved:", student);
-    
+    const students = await response.json();
+    console.log("Student retrieved:", students);
+    displayStudents(students)
   }
   else{
     console.error("Failed to fetch students:", response.status);
   }
+ }
+function displayStudents(students) {
+    const tableBody = document.getElementById('studentTableBody');
+    tableBody.innerHTML = ''; // Clear existing data
+
+    students.forEach(student => {
+        const row = `
+            <tr>
+              <td>${student.studentID}</td>
+                <td>${student.firstName}</td>
+                <td>${student.lastName}</td>
+                <td>${student.dateofbirth}</td>
+                <td>${student.gender}</td>
+                <td>${student.age}</td>
+                <td>${student.email}</td>
+                <td>${student.phone}</td>
+               <td>${student.address}</td>
+                <td>${student.city}</td>
+                <td>${student.state}</td>
+                <td>${student.course}</td>
+                <td>${student.admiDate}</td>
+                <td>eDIT</td>
+                <td>DELETE</td>
+            </tr>
+        `;
+        tableBody.innerHTML += row;
+    });
 }
-
-
   async function  myfunction(event) {
     event.preventDefault();
-    //get all values from form
+    //get all values from the form
     var id = document.getElementById("id").value;
     var firstName = document.getElementById("firstName").value;
     var lastName = document.getElementById("lastName").value;
@@ -238,7 +264,9 @@
       }
     }
 
-    //start validation
+    
+
+    //Validation start
 
     if (id == "") {
       document.getElementById("error").innerHTML = "please Enter Student id";
@@ -330,6 +358,8 @@
       document.getElementById("dateError").innerHTML = "";
     }
 
+    //validation end
+
     var student = {
       StudentID: id,
       FirstName: firstName,
@@ -345,6 +375,7 @@
       Course: course,
       AdmiDate: admissionDate
     }
+    console.log("Student object",student);
 
     
       const response = await fetch('https://localhost:7222/api/Student', {
@@ -397,34 +428,37 @@
     //     "\nAdmission Date :" +
     //     addmissionDate,
     // );
-    console.log(
-      "Id : " +
-      id +
-      "\nFirstName : " +
-      firstName +
-      "\nLastName : " +
-      lastName +
-      "\nDateo_of_birth : " +
-      dob +
-      "\nAge : " +
-      age +
-      "\nEmail : " +
-      email +
-      "\ngender  : " +
-      gender +
-      "\nPhone :" +
-      phone +
-      "\nAddress :" +
-      address +
-      "\nCity :" +
-      city +
-      "\nState :" +
-      state +
-      "\nCourse :" +
-      course +
-      "\nAdmission Date :" +
-      addmissionDate,
-    );
+    // console.log(
+    //   "Id : " +
+    //   id +
+    //   "\nFirstName : " +
+    //   firstName +
+    //   "\nLastName : " +
+    //   lastName +
+    //   "\nDateo_of_birth : " +
+    //   dob +
+    //   "\nAge : " +
+    //   age +
+    //   "\nEmail : " +
+    //   email +
+    //   "\ngender  : " +
+    //   gender +
+    //   "\nPhone :" +
+    //   phone +
+    //   "\nAddress :" +
+    //   address +
+    //   "\nCity :" +
+    //   city +
+    //   "\nState :" +
+    //   state +
+    //   "\nCourse :" +
+    //   course +
+    //   "\nAdmission Date :" +
+    //   addmissionDate,
+    // );
+
+
+  
   }
 </script>
 
