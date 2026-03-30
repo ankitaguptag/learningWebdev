@@ -223,6 +223,7 @@ function update(studentID) {
         console.log(`Comparing ${x.studentID} == ${studentID}`);
         return x.studentID == studentID;
     });
+    document.getElementById("id").value=student.studentID;
     console.log(JSON.stringify(student));
 
 }
