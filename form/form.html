@@ -32,7 +32,7 @@
 
 <body>
   <div class="container mt-4">
-    <form class="form-box" onsubmit="myfunction(event)" action="#">
+    <form class="form-box" onsubmit="createStudent(event)" action="#">
       <div class="text-center">
         <h3>Student Form</h3>
         <span id="error" style="color: red"></span>
@@ -195,8 +195,11 @@
      stop the event, allowing for custom validation or AJAX submissions instead. 
      The most standard and recommended method is using event.preventDefault(). 
   */
- getStudent();
- async function getStudent(){
+var studentList =  [];
+
+
+ getStudents();
+ async function getStudents(){
   const response = await fetch('https://localhost:7222/api/Student',{
     method:'GET',
     headers:{
@@ -204,14 +207,26 @@
     }
   });
   if (response.ok){
-    const students = await response.json();
-    console.log("Student retrieved:", students);
-    displayStudents(students)
+     studentList = await response.json();
+    console.log("Student retrieved:", studentList);
+    displayStudents(studentList)
   }
   else{
     console.error("Failed to fetch students:", response.status);
   }
  }
+
+
+function update(studentID) {
+     const student= studentList.find(x=>{
+        // This will log every comparison until it finds a match
+        console.log(`Comparing ${x.studentID} == ${studentID}`);
+        return x.studentID == studentID;
+    });
+    console.log(JSON.stringify(student));
+
+}
+
 function displayStudents(students) {
     const tableBody = document.getElementById('studentTableBody');
     tableBody.innerHTML = ''; // Clear existing data
@@ -219,7 +234,7 @@ function displayStudents(students) {
     students.forEach(student => {
         const row = `
             <tr>
-              <td>${student.studentID}</td>
+                <td>${student.studentID}</td>
                 <td>${student.firstName}</td>
                 <td>${student.lastName}</td>
                 <td>${student.dateofbirth}</td>
@@ -227,19 +242,23 @@ function displayStudents(students) {
                 <td>${student.age}</td>
                 <td>${student.email}</td>
                 <td>${student.phone}</td>
-               <td>${student.address}</td>
+                <td>${student.address}</td>
                 <td>${student.city}</td>
                 <td>${student.state}</td>
                 <td>${student.course}</td>
                 <td>${student.admiDate}</td>
-                <td>eDIT</td>
-                <td>DELETE</td>
+                <td>
+                  <button type="button" onclick="update('${student.studentID}')" class="btn btn-primary">Edit</button>
+                  <button type="button" class="btn btn-danger">Delete</button>
+                </td>
+                  
+                
             </tr>
         `;
         tableBody.innerHTML += row;
     });
 }
-  async function  myfunction(event) {
+  async function  createStudent(event) {
     event.preventDefault();
     //get all values from the form
     var id = document.getElementById("id").value;
@@ -397,6 +416,9 @@ function displayStudents(students) {
       else{
        console.log("Server Response:server error"); 
       }
+
+
+
     
 
     //alert(JSON.stringify(student, null, 2));
