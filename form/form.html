@@ -145,7 +145,7 @@
           </tr>
         </thead>
         <tbody id="studentTableBody">
-         
+
           <!-- <tr>
             <th scope="row">1</th>
             <td>Ankita</td>
@@ -195,45 +195,67 @@
      stop the event, allowing for custom validation or AJAX submissions instead. 
      The most standard and recommended method is using event.preventDefault(). 
   */
-var studentList =  [];
+  var studentList = [];
+  var apiUrl = 'https://localhost:7222/api/Student';
 
-
- getStudents();
- async function getStudents(){
-  const response = await fetch('https://localhost:7222/api/Student',{
-    method:'GET',
-    headers:{
-      'accept':'*/*'
-    }
-  });
-  if (response.ok){
-     studentList = await response.json();
-    console.log("Student retrieved:", studentList);
-    displayStudents(studentList)
-  }
-  else{
-    console.error("Failed to fetch students:", response.status);
-  }
- }
-
-
-function update(studentID) {
-     const student= studentList.find(x=>{
-        // This will log every comparison until it finds a match
-        console.log(`Comparing ${x.studentID} == ${studentID}`);
-        return x.studentID == studentID;
+  getStudents();
+  async function getStudents() {
+    const response = await fetch(apiUrl, {
+      method: 'GET',
+      headers: {
+        'accept': '*/*'
+      }
     });
-    document.getElementById("id").value=student.studentID;
+    if (response.ok) {
+      studentList = await response.json();
+      console.log("Student retrieved:", studentList);
+      displayStudents(studentList)
+    }
+    else {
+      console.error("Failed to fetch students:", response.status);
+    }
+  }
+
+
+  function update(studentID) {
+    const student = studentList.find(x => {
+      // This will log every comparison until it finds a match
+      console.log(`Comparing ${x.studentID} == ${studentID}`);
+      return x.studentID == studentID;
+    });
+    document.getElementById("id").value = student.studentID;
+    document.getElementById("firstName").value = student.firstName;
+    document.getElementById("lastName").value = student.lastName;
+    document.getElementById("dob").value = student.dateofbirth;
+    //document.getElementById("gender").value = student.gender;
+    document.getElementById("age").value = student.age;
+    document.getElementById("email").value = student.email;
+    document.getElementById("phone").value = student.phone;
+    document.getElementById("address").value = student.address;
+    document.getElementById("city").value = student.city;
+    document.getElementById("state").value = student.state; 
+    document.getElementById("course").value = student.course; 
+    document.getElementById("admissionDate").value = student.admiDate;
+
+    // Find all radio buttons with name="gender"
+      var genderRadios = document.getElementsByName("gender");
+      for (let i = 0; i < genderRadios.length; i++) {
+          if (genderRadios[i].value === student.gender) {
+              genderRadios[i].checked = true;
+              break;
+          }
+      }
+
     console.log(JSON.stringify(student));
 
-}
+  }
 
-function displayStudents(students) {
+  function displayStudents(students) {
     const tableBody = document.getElementById('studentTableBody');
     tableBody.innerHTML = ''; // Clear existing data
 
     students.forEach(student => {
-        const row = `
+      const row = `
             <tr>
                 <td>${student.studentID}</td>
                 <td>${student.firstName}</td>
@@ -256,137 +278,53 @@ function displayStudents(students) {
                 
             </tr>
         `;
-        tableBody.innerHTML += row;
+      tableBody.innerHTML += row;
     });
-}
-  async function  createStudent(event) {
+  }
+  async function createStudent(event) {
     event.preventDefault();
-    //get all values from the form
+    
     var id = document.getElementById("id").value;
     var firstName = document.getElementById("firstName").value;
     var lastName = document.getElementById("lastName").value;
     var dob = document.getElementById("dob").value;
     var age = document.getElementById("age").value;
     var email = document.getElementById("email").value;
-    var age = document.getElementById("age").value;
     var phone = document.getElementById("phone").value;
     var address = document.getElementById("address").value;
     var city = document.getElementById("city").value;
     var state = document.getElementById("state").value;
     var course = document.getElementById("course").value;
     var admissionDate = document.getElementById("admissionDate").value;
+    
     var gender = "";
     var genderRes = document.getElementsByName("gender");
-    for (i = 0; i < genderRes.length; i++) {
+    for (var i = 0; i < genderRes.length; i++) {
       if (genderRes[i].checked) {
         gender = genderRes[i].value;
         break;
       }
     }
 
+    // Validation
+    if (id == "") { document.getElementById("error").innerHTML = "please Enter Student id"; return false; }
+    if (firstName == "") { document.getElementById("error").innerHTML = "please Enter first name"; return false; }
+    if (lastName == "") { document.getElementById("error").innerHTML = "please Enter Last name"; return false; }
+    if (dob == "") { document.getElementById("error").innerHTML = "please Enter DOB"; return false; }
+    if (gender == "") { document.getElementById("error").innerHTML = "please select gender"; return false; }
+    if (age == "") { document.getElementById("error").innerHTML = "please Enter Age"; return false; }
+    if (email == "") { document.getElementById("error").innerHTML = "please Enter Email"; return false; }
     
+    document.getElementById("error").innerHTML = "";
+    document.getElementById("dateError").innerHTML = "";
 
-    //Validation start
-
-    if (id == "") {
-      document.getElementById("error").innerHTML = "please Enter Student id";
-      return false;
-    } else {
-      document.getElementById("error").innerHTML = "";
-    }
-    if (firstName == "") {
-      document.getElementById("error").innerHTML = "please Enter first name";
-      return false;
-    } else {
-      document.getElementById("error").innerHTML = "";
-    }
-
-    if (lastName == "") {
-      document.getElementById("error").innerHTML = "please Enter Last name";
-      return false;
-    } else {
-      document.getElementById("error").innerHTML = "";
-    }
-
-    if (dob == "") {
-      document.getElementById("error").innerHTML =
-        "please Enter Date_of_Birth";
-      return false;
-    } else {
-      document.getElementById("error").innerHTML = "";
-    }
-
-    if (gender == "") {
-      document.getElementById("error").innerHTML = "please select gender";
-      return false;
-    } else {
-      document.getElementById("error").innerHTML = "";
-    }
-
-    if (age == "") {
-      document.getElementById("error").innerHTML = "please Enter Age";
-      return false;
-    } else {
-      document.getElementById("error").innerHTML = "";
-    }
-
-    if (email == "") {
-      document.getElementById("error").innerHTML = "please Enter Email";
-      return false;
-    } else {
-      document.getElementById("error").innerHTML = "";
-    }
-
-    if (phone == "") {
-      document.getElementById("error").innerHTML = "please Enter Number";
-      return false;
-    } else {
-      document.getElementById("error").innerHTML = "";
-    }
-
-    if (address == "") {
-      document.getElementById("error").innerHTML = "please Enter Address";
-      return false;
-    } else {
-      document.getElementById("error").innerHTML = "";
-    }
-    if (city == "") {
-      document.getElementById("error").innerHTML = "please select city";
-      return false;
-    } else {
-      document.getElementById("error").innerHTML = "";
-    }
-
-    if (state == "") {
-      document.getElementById("error").innerHTML = "please select State";
-      return false;
-    } else {
-      document.getElementById("error").innerHTML = "";
-    }
-    if (course == "") {
-      document.getElementById("error").innerHTML = "please select Course";
-      return false;
-    } else {
-      document.getElementById("error").innerHTML = "";
-    }
-
-    if (admissionDate === "") {
-      document.getElementById("dateError").innerHTML =
-        "Please enter admission date";
-      return false;
-    } else {
-      document.getElementById("dateError").innerHTML = "";
-    }
-
-    //validation end
-
-    var student = {
-      StudentID: id,
+    var studentData = {
+      StudentID: parseInt(id),
       FirstName: firstName,
       LastName: lastName,
       Gender: gender,
       Dateofbirth: dob,
-      Age: age,
+      Age: parseInt(age),
       Email: email,
       Phone: phone,
       Address: address,
@@ -395,93 +333,30 @@ function displayStudents(students) {
       Course: course,
       AdmiDate: admissionDate
     }
-    console.log("Student object",student);
 
-    
-      const response = await fetch('https://localhost:7222/api/Student', {
-        method: 'POST',
-        headers: {
-          'accept': '*/*',
-          'Content-Type': 'application/json'
-        },
-    body: JSON.stringify(student)
+    // Determine if we should POST or PUT
+    const isExisting = studentList.some(x => x.studentID == studentData.StudentID);
+    const methodType = isExisting ? 'PUT' : 'POST';
 
-      });
-      if(response.ok){
-        const res =  await response.json();
-        console.log("Server Response:", res.message); // Accesses "Student Created Successfully"
+    const response = await fetch(apiUrl, {
+      method: methodType,
+      headers: {
+        'accept': '*/*',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(studentData)
+    });
 
-            // 3. User Feedback
-           // alert(res.message);
-      }
-      else{
-       console.log("Server Response:server error"); 
-      }
-
-
-
-    
-
-    //alert(JSON.stringify(student, null, 2));
-    // alert(
-    //   "Id : " +
-    //     id +
-    //     "\nFirstName : " +
-    //     firstName +
-    //     "\nLastName : " +
-    //     lastName +
-    //     "\nDateo_of_birth : " +
-    //     dob +
-    //     "\nAge : " +
-    //     age +
-    //     "\nEmail : " +
-    //     email +
-    //     "\ngender  : " +
-    //     gender +
-    //     "\nPhone :" +
-    //     phone +
-    //     "\nAddress :" +
-    //     address +
-    //     "\nCity :" +
-    //     city +
-    // "\nState :" +
-    // state +
-    //     "\nCourse :" +
-    //     course +
-    //     "\nAdmission Date :" +
-    //     addmissionDate,
-    // );
-    // console.log(
-    //   "Id : " +
-    //   id +
-    //   "\nFirstName : " +
-    //   firstName +
-    //   "\nLastName : " +
-    //   lastName +
-    //   "\nDateo_of_birth : " +
-    //   dob +
-    //   "\nAge : " +
-    //   age +
-    //   "\nEmail : " +
-    //   email +
-    //   "\ngender  : " +
-    //   gender +
-    //   "\nPhone :" +
-    //   phone +
-    //   "\nAddress :" +
-    //   address +
-    //   "\nCity :" +
-    //   city +
-    //   "\nState :" +
-    //   state +
-    //   "\nCourse :" +
-    //   course +
-    //   "\nAdmission Date :" +
-    //   addmissionDate,
-    // );
-
-
-  
+    if (response.ok) {
+      alert(isExisting ? "Updated Successfully!" : "Created Successfully!");
+      // Reset form and refresh table
+      event.target.reset();
+      getStudents();
+    }
+    else {
+      alert("Server Error");
+      console.log("Server Response Error:", response.status);
+    }
   }
 </script>
 
