@@ -63,9 +63,15 @@ namespace from_backend_v8.Controllers
         }
 
 
-        [HttpPut]
-        public IActionResult Update(Student student)
+        [HttpPut("{id}")] // <--- Add this "{id}"
+        public IActionResult Update(int id, [FromBody] Student student) // <--- Add 'int id' parameter
         {
+            // Optional: Safety check to ensure the URL ID matches the Body ID
+            if (id != student.StudentID)
+            {
+                return BadRequest("ID mismatch");
+            }
+
             _context.Database.ExecuteSqlInterpolated($@"
         EXEC Studentupdate
         @ID={student.StudentID},
