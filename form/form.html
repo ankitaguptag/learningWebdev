@@ -119,12 +119,43 @@
           <br>
         </div>
       </div>
+      <div class="row">
+        <div class="col">
+          <label>Hobbies</label>
+
+          <div class="Hobbies" id="Hobbies">
+            <input type="checkbox" title="Cricket" />
+            <label for="Cricket">Cricket</label>
+            <input type="checkbox" title="Footbal" />
+            <label for="Footbal">Footbal</label>
+            <input type="checkbox" title="ludo" />
+            <label for="ludo">ludo</label>
+            <input type="checkbox" title="chess" />
+            <label for="chess">chess</label>
+          </div>
+
+        </div>
+      </div>
+
+
 
       <div>
         <button type="button" id="submitBtn" onclick="createStudent(event)" class="btn btn-primary">Submit</button>
-        <button type="button" id="updateBtn" onclick="updateStudent(event)" class="btn btn-success" style="display: none;">Update</button>
+        <button type="button" id="updateBtn" onclick="updateStudent(event)" class="btn btn-success"
+          style="display: none;">Update</button>
       </div>
     </form>
+    <div class="row">
+    <div class="col-6">
+    <div class="search-section">
+      <label for="studentSearch" class="form-label">Filter:</label>
+      <div class="input-group mb-2">
+        <input type="search" id="studentSearch" class="form-control" placeholder="Search">
+        <button class="btn btn-primary" type="button" id="btnSearch">Search</button>
+      </div>
+    </div>
+    </div>
+    </div>
 
     <div>
       <table class="table table-hover">
@@ -217,85 +248,82 @@
       console.error("Failed to fetch students:", response.status);
     }
   }
-
-
-
   async function updateStudent(event) {
-  event.preventDefault(); // Prevent page reload
+    event.preventDefault(); // Prevent page reload
 
-  // 1. Collect the updated data from the form
-  var id = document.getElementById("id").value;
-  var firstName = document.getElementById("firstName").value;
-  var lastName = document.getElementById("lastName").value;
-  var dob = document.getElementById("dob").value;
-  var age = document.getElementById("age").value;
-  var email = document.getElementById("email").value;
-  var phone = document.getElementById("phone").value;
-  var address = document.getElementById("address").value;
-  var city = document.getElementById("city").value;
-  var state = document.getElementById("state").value;
-  var course = document.getElementById("course").value;
-  var admissionDate = document.getElementById("admissionDate").value;
+    // 1. Collect the updated data from the form
+    var id = document.getElementById("id").value;
+    var firstName = document.getElementById("firstName").value;
+    var lastName = document.getElementById("lastName").value;
+    var dob = document.getElementById("dob").value;
+    var age = document.getElementById("age").value;
+    var email = document.getElementById("email").value;
+    var phone = document.getElementById("phone").value;
+    var address = document.getElementById("address").value;
+    var city = document.getElementById("city").value;
+    var state = document.getElementById("state").value;
+    var course = document.getElementById("course").value;
+    var admissionDate = document.getElementById("admissionDate").value;
 
-  var gender = "";
-  var genderRes = document.getElementsByName("gender");
-  for (var i = 0; i < genderRes.length; i++) {
-    if (genderRes[i].checked) {
-      gender = genderRes[i].value;
-      break;
+    var gender = "";
+    var genderRes = document.getElementsByName("gender");
+    for (var i = 0; i < genderRes.length; i++) {
+      if (genderRes[i].checked) {
+        gender = genderRes[i].value;
+        break;
+      }
+    }
+
+    // 2. Create the data object
+    var studentData = {
+      StudentID: parseInt(id),
+      FirstName: firstName,
+      LastName: lastName,
+      Gender: gender,
+      Dateofbirth: dob,
+      Age: parseInt(age),
+      Email: email,
+      Phone: phone,
+      Address: address,
+      City: city,
+      State: state,
+      Course: course,
+      AdmiDate: admissionDate
+    };
+
+    try {
+      // 3. Send the PUT request to the server
+      // Note: Most APIs expect the ID in the URL for PUT requests
+      const response = await fetch(`${apiUrl}/${id}`, { // Notice the /${id} at the end
+        method: 'PUT',
+        headers: {
+          'accept': '*/*',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(studentData)
+      });
+
+      if (response.ok) {
+        alert("Student Updated Successfully!");
+
+        // 4. Reset UI: Switch buttons back and clear form
+        document.getElementById("submitBtn").style.display = "inline-block";
+        document.getElementById("updateBtn").style.display = "none";
+        document.getElementById("id").readOnly = false;
+
+        // Reset the form values
+        event.target.closest('form').reset();
+
+        // 5. Refresh the Table Data
+        getStudents();
+      } else {
+        alert("Update failed. Server status: " + response.status);
+      }
+    } catch (error) {
+      console.error("Error updating student:", error);
+      alert("An error occurred while updating.");
     }
   }
-
-  // 2. Create the data object
-  var studentData = {
-    StudentID: parseInt(id),
-    FirstName: firstName,
-    LastName: lastName,
-    Gender: gender,
-    Dateofbirth: dob,
-    Age: parseInt(age),
-    Email: email,
-    Phone: phone,
-    Address: address,
-    City: city,
-    State: state,
-    Course: course,
-    AdmiDate: admissionDate
-  };
-
-  try {
-    // 3. Send the PUT request to the server
-    // Note: Most APIs expect the ID in the URL for PUT requests
-   const response = await fetch(`${apiUrl}/${id}`, { // Notice the /${id} at the end
-  method: 'PUT',
-  headers: {
-    'accept': '*/*',
-    'Content-Type': 'application/json'
-  },
-  body: JSON.stringify(studentData)
-});
-
-    if (response.ok) {
-      alert("Student Updated Successfully!");
-
-      // 4. Reset UI: Switch buttons back and clear form
-      document.getElementById("submitBtn").style.display = "inline-block";
-      document.getElementById("updateBtn").style.display = "none";
-      document.getElementById("id").readOnly = false;
-      
-      // Reset the form values
-      event.target.closest('form').reset();
-
-      // 5. Refresh the Table Data
-      getStudents(); 
-    } else {
-      alert("Update failed. Server status: " + response.status);
-    }
-  } catch (error) {
-    console.error("Error updating student:", error);
-    alert("An error occurred while updating.");
-  }
-}
 
 
   function update(studentID) {
@@ -326,19 +354,19 @@
         break;
       }
     }
-  document.getElementById("submitBtn").style.display = "none";    // Hide Submit
-  document.getElementById("updateBtn").style.display = "inline-block"; // Show Update
+    document.getElementById("submitBtn").style.display = "none";    // Hide Submit
+    document.getElementById("updateBtn").style.display = "inline-block"; // Show Update
 
-  // Recommended: Prevent user from changing the ID during an update
-  document.getElementById("id").readOnly = true;
+    // Recommended: Prevent user from changing the ID during an update
+    document.getElementById("id").readOnly = true;
 
-  console.log("Form populated for editing:", JSON.stringify(student));
+    console.log("Form populated for editing:", JSON.stringify(student));
     // console.log(JSON.stringify(student));
 
   }
 
   async function handleDelete(studentID) {
-  if (confirm("Are you sure you want to delete this student?")) {
+    if (confirm("Are you sure you want to delete this student?")) {
 
       const response = await fetch(`${apiUrl}/${studentID}`, {
         method: 'DELETE',
@@ -353,8 +381,38 @@
       } else {
         alert("Failed to delete. Server returned: " + response.status);
       }
-    } 
+    }
   }
+  // --- SEARCH LOGIC START ---
+    document.getElementById('btnSearch').addEventListener('click', function() {
+        const searchTerm = document.getElementById('studentSearch').value.trim().toLowerCase();
+        
+        if (searchTerm === "") {
+            displayStudents(studentList); // Reset to full list if empty
+            return;
+        }
+
+        const firstLetter = searchTerm.charAt(0);
+        
+        // Filter the existing list
+        const filteredData = studentList.filter(student => 
+            student.firstName.toLowerCase().startsWith(firstLetter)
+            );
+
+        displayStudents(filteredData);
+    });
+
+    // Optional: Real-time search as you type
+    document.getElementById('studentSearch').addEventListener('input', function() {
+        const char = this.value.trim().toLowerCase();
+        if(char === "") {
+            displayStudents(studentList);
+        } else {
+            const filtered = studentList.filter(s => s.firstName.toLowerCase().startsWith(char.charAt(0)));
+            displayStudents(filtered);
+        }
+    });
+    // --- SEARCH LOGIC END ---
 
 
   function displayStudents(students) {
