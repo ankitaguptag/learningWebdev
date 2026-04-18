@@ -29,7 +29,7 @@
 
 
 </head>
-
+<!--Start form -->
 <body>
   <div class="container mt-4">
     <form class="form-box" action="#">
@@ -145,6 +145,7 @@
           style="display: none;">Update</button>
       </div>
     </form>
+    <!-- End form -->
     <div class="row">
     <div class="col-6">
     <div class="search-section">
@@ -471,7 +472,7 @@
       }
     }
 
-    // Validation
+    // Form Validates Input //
     if (id == "") { document.getElementById("error").innerHTML = "please Enter Student id"; return false; }
     if (firstName == "") { document.getElementById("error").innerHTML = "please Enter first name"; return false; }
     if (lastName == "") { document.getElementById("error").innerHTML = "please Enter Last name"; return false; }
