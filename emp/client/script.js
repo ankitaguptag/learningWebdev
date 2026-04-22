@@ -1,5 +1,5 @@
 
-
+const API_URL = "https://localhost:7079/api/Employee";
 async function createEmp(event)
 {
     event.preventDefault();
@@ -7,10 +7,7 @@ async function createEmp(event)
     var l_name= document.getElementById("l_name").value;
     var email= document.getElementById("email").value;
     var phone= document.getElementById("phone").value;
-    console.log(f_name);
-    console.log(l_name);
-    console.log(email);
-    console.log(phone);
+    
     var employee = {
         f_name: f_name,
         l_name: l_name,
@@ -18,7 +15,7 @@ async function createEmp(event)
         phone: phone
     }
 
-    const response = await fetch('https://localhost:7079/api/Employee', {
+    const response = await fetch(API_URL, {
         method: 'POST',
         headers: {  
             'Content-Type': 'application/json'
@@ -36,7 +33,7 @@ getAllEmp();
 var emplist =[]
 async function getAllEmp()
 {
-    const response = await fetch('https://localhost:7079/api/Employee', {
+    const response = await fetch(API_URL, {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json'
