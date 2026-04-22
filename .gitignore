@@ -1,12 +1,22 @@
-#version 9.0
-from-backend/.vs
-from-backend/from-backend/bin
-from-backend/from-backend/obj
+# Visual Studio
+.vs/
 
-#version 8.0
-from-backend-v8/.vs
-from-backend-v8/from-backend-v8/bin
-from-backend-v8/from-backend-v8/obj
+# Build folders
+bin/
+obj/
 
-/from-backend-v8/from-backend-v8/bin
-/from-backend-v8/from-backend-v8/obj
+# User-specific files
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Logs
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# VS Code
+.vscode/
