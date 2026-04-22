@@ -61,13 +61,19 @@ function displayEmployee(employees) {
     employees.forEach(employee => {
        const rows = `
         <tr> 
+         <td>${employee.id}</td> 
             <td>${employee.f_name}</td> 
             <td>${employee.l_name}</td>  
             <td>${employee.email}</td>  
             <td>${employee.phone}</td> 
             <td>
-            <button class=""></button>
-            </td> 
+                <button class="btn btn-sm btn-warning me-2" onclick="editEmp(${employee.id})">
+                    Edit
+                </button>
+                <button class="btn btn-sm btn-danger" onclick="deleteEmp(${employee.id})">
+                    Delete
+                </button>
+            </td>
         </tr>
         `;
             tableBody.innerHTML =  tableBody.innerHTML  + rows;
