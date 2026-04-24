@@ -20,29 +20,29 @@
 
           <form class="row g-3 needs-validation" novalidate>
             <div class="col-md-6">
+              <label class="form-label">Id</label>
+              <input type="text" class="form-control" id="id" required />
+            </div>
+            <div class="col-md-6">
               <label class="form-label">First Name</label>
               <input type="text" class="form-control" id="f_name" required />
             </div>
-
             <div class="col-md-6">
               <label class="form-label">Last Name</label>
               <input type="text" class="form-control" id="l_name" required />
             </div>
-
             <div class="col-md-6">
               <label class="form-label">Email</label>
               <input type="email" class="form-control" id="email" required />
             </div>
-
             <div class="col-md-6">
               <label class="form-label">Phone</label>
               <input type="text" class="form-control" id="phone" required />
             </div>
-
             <div class="col-12 text-center">
-              <button class="btn btn-primary px-4" onclick="createEmp(event)">
-                Submit
-              </button>
+            <button type="button" id="submitBtn" onclick="createEmp(event)" class="btn btn-primary">Submit</button>
+            <button type="button" id="updateBtn" onclick="updateEmp(event)" class="btn btn-success"style="display: none;">Update</button>
+
             </div>
           </form>
         </div>
