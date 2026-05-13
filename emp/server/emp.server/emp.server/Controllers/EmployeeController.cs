@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
+using System.Data;
 using System.Xml.Linq;
 
 namespace emp.server.Controllers
@@ -41,6 +42,21 @@ namespace emp.server.Controllers
 
             return Ok(data);
         }
+
+        [HttpGet("search")]
+        public async Task<IActionResult> SearchEmployee(string searchText)
+        {
+            var param = new SqlParameter("@SearchText",
+                string.IsNullOrEmpty(searchText) ? DBNull.Value : searchText);
+
+            var data = await _context.Employees
+                .FromSqlRaw("EXEC procSearchEmployee @SearchText", param)
+                .AsNoTracking()
+                .ToListAsync();
+
+            return Ok(data);
+        }
+
 
         [HttpDelete("{id}")]
         public IActionResult DeleteById(int id)
