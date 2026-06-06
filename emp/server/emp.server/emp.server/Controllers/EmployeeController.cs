@@ -56,6 +56,19 @@ namespace emp.server.Controllers
 
             return Ok(data);
         }
+        [HttpGet("search/{name}")]
+        public async Task<IActionResult> SearchEmployeeName(string name)
+        {
+            var param = new SqlParameter("@SearchName", name);
+
+            var data = await _context.Employees
+                .FromSqlRaw("EXEC searchEmployeeName @SearchName", param)
+                .ToListAsync();
+
+            return Ok(data);
+        }
+
+
 
 
         [HttpDelete("{id}")]
@@ -72,22 +85,23 @@ namespace emp.server.Controllers
         [HttpPost]
         public IActionResult CreateEmployee(EmployeeDto employeeDto)
         {
+            try
+            {
+                _context.Database.ExecuteSqlInterpolated($@"
+            EXEC createEmployee_20260421
+            @f_name={employeeDto.F_name},
+            @l_name={employeeDto.L_name},
+            @email={employeeDto.Email},
+            @phone={employeeDto.Phone}
+        ");
 
-            _context.Database.ExecuteSqlInterpolated($@" Exec createEmployee_20260421
-           @f_name={employeeDto.F_name},
-           @l_name = { employeeDto.L_name},
-           @email = {employeeDto.Email }, 
-           @phone = {employeeDto.Phone}"
-           
-
-
-                );
-
-
-            return Ok(new {suceess=true ,message= "Employee created successfully" });
-
+                return Ok(new { success = true });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
-
 
         [HttpPut("{id}")]
         public IActionResult Update(int id, [FromBody] Employee employee)

@@ -1,8 +1,46 @@
 const API_URL = "https://localhost:7079/api/Employee";
 
-let emplist = [];
+let emplist = []; // Holds the master list from the database
 
+// --- GET ALL EMPLOYEES ---
+async function getAllEmp() {
+    const response = await fetch(API_URL);
 
+    if (response.ok) {
+        emplist = await response.json();
+        // Applies active filter or displays everything if empty
+        searchEmp(); 
+    } else {
+        alert("Error fetching employees");
+    }
+}
+
+// --- CORRECTED SEARCH FUNCTION ---
+function searchEmp() {
+    // FIX: Changed from 'searchInput' to 'employeeSearch' to match your HTML ID
+    const searchInput = document.getElementById("employeeSearch");
+    const query = searchInput ? searchInput.value.toLowerCase().trim() : "";
+
+    // Filter the master list based on what fields START with the query
+    const filteredList = emplist.filter(emp => {
+        return (
+            (emp.f_name && emp.f_name.toLowerCase().startsWith(query)) ||
+            (emp.l_name && emp.l_name.toLowerCase().startsWith(query)) ||
+            (emp.id && emp.id.toString().startsWith(query))
+        );
+    });
+
+    // Render the matching results
+    displayEmployee(filteredList);
+}
+
+// --- HELPER TO CLEAR SEARCH ---
+function clearSearchInput() {
+    const searchInput = document.getElementById("employeeSearch");
+    if (searchInput) searchInput.value = "";
+}
+
+// --- CREATE EMPLOYEE ---
 async function createEmp(event) {
     event.preventDefault();
 
@@ -22,23 +60,15 @@ async function createEmp(event) {
 
     if (response.ok) {
         alert("Employee created successfully");
+        document.querySelector("form").reset();
+        clearSearchInput(); // Clear search box so the user sees their new entry
         getAllEmp();
-        event.target.reset();
     } else {
         alert("Error creating employee");
     }
 }
 
-async function getAllEmp() {
-    const response = await fetch(API_URL);
-
-    if (response.ok) {
-        emplist = await response.json();
-        displayEmployee(emplist);
-    } else {
-        alert("Error fetching employees");
-    }
-}
+// --- DISPLAY EMPLOYEES ---
 function displayEmployee(employees) {
     const tableBody = document.getElementById('EmployeeTableBody');
     tableBody.innerHTML = '';
@@ -61,8 +91,11 @@ function displayEmployee(employees) {
     });
 }
 
+// --- EDIT MODE ACTIVATION ---
 function editEmp(employeeId) {
     const emp = emplist.find(x => x.id == employeeId);
+
+    if (!emp) return;
 
     document.getElementById("id").value = emp.id;
     document.getElementById("f_name").value = emp.f_name;
@@ -75,13 +108,13 @@ function editEmp(employeeId) {
     document.getElementById("id").readOnly = true;
 }
 
+// --- UPDATE EMPLOYEE ---
 async function updateEmp(event) {
     event.preventDefault();
 
     const id = document.getElementById("id").value;
 
     const employee = {
-        id: id,
         f_name: document.getElementById("f_name").value,
         l_name: document.getElementById("l_name").value,
         email: document.getElementById("email").value,
@@ -102,29 +135,29 @@ async function updateEmp(event) {
         document.getElementById("id").readOnly = false;
 
         document.querySelector("form").reset();
+        clearSearchInput(); // Clear the search so they can see their updated data
         getAllEmp();
     } else {
         alert("Update failed");
     }
 }
 
+// --- DELETE EMPLOYEE ---
 async function deleteEmp(employeeId) {
     if (confirm("Are you sure you want to delete this Employee?")) {
+        const response = await fetch(`${API_URL}/${employeeId}`, {
+            method: 'DELETE',
+            headers: { 'accept': '*/*' }
+        });
 
-      const response = await fetch(`${API_URL}/${employeeId}`, {
-        method: 'DELETE',
-        headers: {
-          'accept': '*/*'
+        if (response.ok) {
+            alert("Employee deleted successfully!");
+            getAllEmp(); 
+        } else {
+            alert("Failed to delete. Server returned: " + response.status);
         }
-      });
-
-      if (response.ok) {
-        alert("Employee deleted successfully!");
-        getAllEmp(); // Refresh the table
-      } else {
-        alert("Failed to delete. Server returned: " + response.status);
-      }
     }
-  }
+}
 
-getAllEmp(); 
+// Run immediately on page initialization
+getAllEmp();
