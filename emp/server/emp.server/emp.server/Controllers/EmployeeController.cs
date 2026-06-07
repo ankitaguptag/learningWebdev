@@ -21,10 +21,40 @@ namespace emp.server.Controllers
         }
 
         [HttpGet]
-        public IActionResult GetEmployees()
+        public async Task<IActionResult> GetEmployees(
+     string? searchText = null,
+     int pageNumber = 1,
+     int pageSize = 10)
         {
-            var data = _context.Employees.FromSqlRaw("EXEC getEmployees").ToList();
-            return Ok(data);
+            var result = await _context.Set<EmployeeListDto>()
+                .FromSqlRaw(
+                    "EXEC getEmployees_20260607 @SearchText, @PageNumber, @PageSize",
+                    new SqlParameter("@SearchText",
+                        string.IsNullOrWhiteSpace(searchText)
+                            ? DBNull.Value
+                            : searchText),
+                    new SqlParameter("@PageNumber", pageNumber),
+                    new SqlParameter("@PageSize", pageSize))
+                .AsNoTracking()
+                .ToListAsync();
+
+            var totalRecords = result.FirstOrDefault()?.TotalRecords ?? 0;
+
+            return Ok(new
+            {
+                PageNumber = pageNumber,
+                PageSize = pageSize,
+                TotalRecords = totalRecords,
+                TotalPages = (int)Math.Ceiling((double)totalRecords / pageSize),
+                Data = result.Select(x => new
+                {
+                    x.Id,
+                    x.F_name,
+                    x.L_name,
+                    x.Email,
+                    x.Phone
+                })
+            });
         }
         [HttpGet("{id}")]
         public async Task<IActionResult> GetEmployee(int id)

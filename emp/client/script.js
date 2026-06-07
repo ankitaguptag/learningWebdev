@@ -1,18 +1,38 @@
 const API_URL = "https://localhost:7079/api/Employee";
+let emplist = [];
+let currentPage = 1;
+let pageSize = 10;
+let totalPages = 0;
 let searchTimer;
-let emplist = []; // Holds the master list from the database
-
 // --- GET ALL EMPLOYEES ---
-async function getAllEmp() {
-    const response = await fetch(API_URL);
+async function getAllEmp(page = 1) {
 
-    if (response.ok) {
-        emplist = await response.json();
-        // Applies active filter or displays everything if empty
-        searchEmp(); 
-    } else {
+    const searchText = document
+        .getElementById("employeeSearch")
+        ?.value
+        .trim() || "";
+
+    const response = await fetch(
+        `${API_URL}?searchText=${encodeURIComponent(searchText)}&pageNumber=${page}&pageSize=${pageSize}`
+    );
+
+    if (!response.ok) {
         alert("Error fetching employees");
+        return;
     }
+
+    const result = await response.json();
+
+    emplist = result.data;
+    currentPage = result.pageNumber;
+    totalPages = result.totalPages;
+
+    displayEmployee(result.data);
+
+    document.getElementById("employeeCount").textContent =
+        result.totalRecords;
+
+    updatePaginationInfo();
 }
 
 // --- CORRECTED SEARCH FUNCTION ---
@@ -44,30 +64,10 @@ function searchEmpDeBound() {
 
 async function searchEmpAPI() {
 
-    const searchText = document
-        .getElementById("employeeSearch")
-        .value
-        .trim();
+    currentPage = 1;
 
-    // If search box is empty, show all employees
-    if (searchText === "") {
-        getAllEmp();
-        return;
-    }
-
-    const response = await fetch(
-        `${API_URL}/search?searchText=${encodeURIComponent(searchText)}`
-    );
-
-    if (response.ok) {
-        const employees = await response.json();
-        displayEmployee(employees);
-    }
-    else {
-        alert("Search failed");
-    }
+    await getAllEmp(currentPage);
 }
-
 function updateEmployeeCount(count) {
     document.getElementById("employeeCount").textContent = count;
 }
@@ -202,3 +202,23 @@ async function deleteEmp(employeeId) {
 
 // Run immediately on page initialization
 getAllEmp();
+
+function updatePaginationInfo() {
+
+    document.getElementById("pageInfo").textContent =
+        `Page ${currentPage} of ${totalPages}`;
+}
+
+async function nextPage() {
+
+    if (currentPage < totalPages) {
+        await getAllEmp(currentPage + 1);
+    }
+}
+
+async function previousPage() {
+
+    if (currentPage > 1) {
+        await getAllEmp(currentPage - 1);
+    }
+}
