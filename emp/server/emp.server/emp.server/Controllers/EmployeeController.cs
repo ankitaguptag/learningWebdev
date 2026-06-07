@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using System.Data;
+using System.Text.Json;
 using System.Xml.Linq;
 
 namespace emp.server.Controllers
@@ -123,7 +124,20 @@ namespace emp.server.Controllers
             return Ok(new { message = "Employee Updated Successfully" });
         }
 
+        [HttpPut("bulk-update")]
+        public IActionResult BulkUpdate([FromBody] List<EmployeeBulkUpdateDto> employees)
+        {
+            var json = JsonSerializer.Serialize(employees);
 
+            _context.Database.ExecuteSqlRaw(
+                "EXEC procBulkUpdateEmployee_20260607 @EmployeeJson",
+                new SqlParameter("@EmployeeJson", json));
+
+            return Ok(new
+            {
+                message = "Employees updated successfully"
+            });
+        }
     }
 
 }

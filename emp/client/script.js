@@ -106,31 +106,112 @@ async function createEmp(event) {
     }
 }
 
-// --- DISPLAY EMPLOYEES ---
+let bulkEditMode = false;
+
 function displayEmployee(employees) {
 
-     updateEmployeeCount(employees.length);
+    updateEmployeeCount(employees.length);
 
     const tableBody = document.getElementById('EmployeeTableBody');
     tableBody.innerHTML = '';
 
     employees.forEach(emp => {
+
         const row = `
         <tr>
             <td>${emp.id}</td>
-            <td>${emp.f_name}</td>
-            <td>${emp.l_name}</td>
-            <td>${emp.email}</td>
-            <td>${emp.phone}</td>
+
             <td>
-                <button class="btn btn-sm btn-primary" onclick="editEmp(${emp.id})">Edit</button>
-                <button class="btn btn-sm btn-danger" onclick="deleteEmp(${emp.id})">Delete</button>
+                ${bulkEditMode
+                    ? `<input
+                        type="text"
+                        value="${emp.f_name ?? ''}"
+                        class="form-control fname"
+                        data-id="${emp.id}">`
+                    : emp.f_name}
+            </td>
+
+            <td>
+                ${bulkEditMode
+                    ? `<input
+                        type="text"
+                        value="${emp.l_name ?? ''}"
+                        class="form-control lname"
+                        data-id="${emp.id}">`
+                    : emp.l_name}
+            </td>
+
+            <td>
+                ${bulkEditMode
+                    ? `<input
+                        type="email"
+                        value="${emp.email ?? ''}"
+                        class="form-control email"
+                        data-id="${emp.id}">`
+                    : emp.email}
+            </td>
+
+            <td>
+                ${bulkEditMode
+                    ? `<input
+                        type="text"
+                        value="${emp.phone ?? ''}"
+                        class="form-control phone"
+                        data-id="${emp.id}">`
+                    : emp.phone}
+            </td>
+
+            <td>
+                ${bulkEditMode
+                    ? `<span class="text-success fw-bold">
+                        Editable
+                       </span>`
+                    : `
+                        <button
+                            class="btn btn-sm btn-primary"
+                            onclick="editEmp(${emp.id})">
+                            Edit
+                        </button>
+
+                        <button
+                            class="btn btn-sm btn-danger"
+                            onclick="deleteEmp(${emp.id})">
+                            Delete
+                        </button>
+                    `}
             </td>
         </tr>
         `;
+
         tableBody.innerHTML += row;
     });
 }
+
+// --- DISPLAY EMPLOYEES ---
+// function displayEmployee(employees) {
+
+//      updateEmployeeCount(employees.length);
+
+//     const tableBody = document.getElementById('EmployeeTableBody');
+//     tableBody.innerHTML = '';
+
+//     employees.forEach(emp => {
+//         const row = `
+//         <tr>
+//             <td>${emp.id}</td>
+//             <td>${emp.f_name}</td>
+//             <td>${emp.l_name}</td>
+//             <td>${emp.email}</td>
+//             <td>${emp.phone}</td>
+//             <td>
+//                 <button class="btn btn-sm btn-primary" onclick="editEmp(${emp.id})">Edit</button>
+//                 <button class="btn btn-sm btn-danger" onclick="deleteEmp(${emp.id})">Delete</button>
+//             </td>
+//         </tr>
+//         `;
+//         tableBody.innerHTML += row;
+//     });
+// }
 
 // --- EDIT MODE ACTIVATION ---
 function editEmp(employeeId) {
@@ -197,6 +278,85 @@ async function deleteEmp(employeeId) {
         } else {
             alert("Failed to delete. Server returned: " + response.status);
         }
+    }
+}
+
+function enableBulkEdit() {
+
+    bulkEditMode = true;
+
+    document.getElementById("saveAllBtn").style.display = "inline-block";
+    document.getElementById("cancelBulkEditBtn").style.display = "inline-block";
+
+    displayEmployee(emplist);
+}
+
+function cancelBulkEdit() {
+
+    bulkEditMode = false;
+
+    document.getElementById("saveAllBtn").style.display = "none";
+    document.getElementById("cancelBulkEditBtn").style.display = "none";
+
+    displayEmployee(emplist);
+}
+
+async function saveAllEmployees() {
+
+    const employees = [];
+
+    document.querySelectorAll(".fname")
+        .forEach(fnameInput => {
+
+            const id = parseInt(
+                fnameInput.dataset.id
+            );
+
+            employees.push({
+                id: id,
+
+                f_name: fnameInput.value,
+
+                l_name:
+                    document.querySelector(
+                        `.lname[data-id="${id}"]`
+                    ).value,
+
+                email:
+                    document.querySelector(
+                        `.email[data-id="${id}"]`
+                    ).value,
+
+                phone:
+                    document.querySelector(
+                        `.phone[data-id="${id}"]`
+                    ).value
+            });
+        });
+
+    const response = await fetch(
+        `${API_URL}/bulk-update`,
+        {
+            method: "PUT",
+
+            headers: {
+                "Content-Type":
+                    "application/json"
+            },
+
+            body: JSON.stringify(employees)
+        });
+
+    if(response.ok)
+    {
+        alert("Updated Successfully");
+
+        bulkEditMode = false;
+
+        document.getElementById("saveAllBtn")
+            .style.display = "none";
+
+        getAllEmp(currentPage);
     }
 }
 
