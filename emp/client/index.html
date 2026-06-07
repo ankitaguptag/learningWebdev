@@ -3,109 +3,335 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Employee Form</title>
-    <link
-      href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css"
-      rel="stylesheet"
-    />
+    <title>Employee Management</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet" />
   </head>
 
   <body class="bg-light">
-    <div class="container py-5">
-      <div class="card shadow-sm mb-5">
-        <div class="card-body">
-          <h3 class="text-center mb-4">Employee Details</h3>
 
-          <form class="row g-3 needs-validation" novalidate>
-            <div class="col-md-6" hidden="hidden">
-              <label class="form-label">Id</label>
-              <input type="text" class="form-control" id="id" required />
+    <!-- Navbar -->
+    <nav class="navbar navbar-light bg-white border-bottom shadow-sm px-4 py-2 mb-4">
+      <div class="d-flex align-items-center gap-2">
+        <div class="bg-primary rounded d-flex align-items-center justify-content-center text-white fw-bold" style="width:36px;height:36px;font-size:16px;">E</div>
+        <div>
+          <div class="fw-semibold lh-1">Employee Portal</div>
+          <small class="text-muted" style="font-size:11px;">Manage your workforce</small>
+        </div>
+      </div>
+      <div class="d-flex align-items-center gap-3 ms-auto">
+        <span class="text-muted small">Total Employees: <strong class="text-dark" id="employeeCount">0</strong></span>
+
+        <!-- NEW FEATURE: Bulk Import button — disabled until backend ready -->
+        <!-- TO ENABLE: remove `disabled` attribute and wire onclick="openCsvImport()" -->
+        <button class="btn btn-outline-secondary btn-sm d-flex align-items-center gap-1" disabled title="Coming soon">
+          <i class="bi bi-upload"></i> Bulk Import
+        </button>
+      </div>
+    </nav>
+
+
+    <div class="container pb-5">
+
+      <!-- NEW FEATURE: Stats bar — hidden until backend ready -->
+      <!-- TO ENABLE: remove d-none from the row below and call updateStats() after data loads -->
+      <div class="row g-3 mb-4 d-none" id="statsBar">
+        <div class="col-6 col-md-3">
+          <div class="card border-0 shadow-sm h-100">
+            <div class="card-body d-flex align-items-center gap-3 py-3">
+              <div class="bg-primary bg-opacity-10 text-primary rounded p-2 fs-5"><i class="bi bi-people"></i></div>
+              <div><div class="fw-bold fs-5" id="statTotal">—</div><div class="text-muted" style="font-size:11px;">TOTAL</div></div>
             </div>
-            <div class="col-md-6">
-              <label class="form-label">First Name</label>
-              <input type="text" class="form-control" id="f_name" required />
+          </div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="card border-0 shadow-sm h-100">
+            <div class="card-body d-flex align-items-center gap-3 py-3">
+              <div class="bg-success bg-opacity-10 text-success rounded p-2 fs-5"><i class="bi bi-check-circle"></i></div>
+              <div><div class="fw-bold fs-5" id="statActive">—</div><div class="text-muted" style="font-size:11px;">ACTIVE</div></div>
             </div>
-            <div class="col-md-6">
-              <label class="form-label">Last Name</label>
-              <input type="text" class="form-control" id="l_name" required />
+          </div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="card border-0 shadow-sm h-100">
+            <div class="card-body d-flex align-items-center gap-3 py-3">
+              <div class="bg-secondary bg-opacity-10 text-secondary rounded p-2 fs-5"><i class="bi bi-pause-circle"></i></div>
+              <div><div class="fw-bold fs-5" id="statInactive">—</div><div class="text-muted" style="font-size:11px;">INACTIVE</div></div>
             </div>
-            <div class="col-md-6">
-              <label class="form-label">Email</label>
-              <input type="email" class="form-control" id="email" required />
+          </div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="card border-0 shadow-sm h-100">
+            <div class="card-body d-flex align-items-center gap-3 py-3">
+              <div class="bg-warning bg-opacity-10 text-warning rounded p-2 fs-5"><i class="bi bi-building"></i></div>
+              <div><div class="fw-bold fs-5" id="statDepts">—</div><div class="text-muted" style="font-size:11px;">DEPARTMENTS</div></div>
             </div>
-            <div class="col-md-6">
-              <label class="form-label">Phone</label>
-              <input type="text" class="form-control" id="phone" required />
-            </div>
-            <div class="col-12 text-center">
-              <button type="button" id="submitBtn" onclick="createEmp(event)" class="btn btn-primary">Submit</button>
-              <button type="button" id="updateBtn" onclick="updateEmp(event)" class="btn btn-success" style="display: none;">Update</button>
-            </div>
-          </form>
+          </div>
         </div>
       </div>
 
-      <div class="card shadow-sm">
+
+      <!-- Employee Form Card -->
+      <div class="card shadow-sm mb-4">
+        <div class="card-header bg-white d-flex align-items-center justify-content-between py-3">
+          <h5 class="mb-0 fw-semibold d-flex align-items-center gap-2">
+            <i class="bi bi-person-plus text-primary"></i> Employee Details
+          </h5>
+          <small class="text-muted">Fields marked <span class="text-danger">*</span> are required</small>
+        </div>
         <div class="card-body">
-          <div class="row align-items-center mb-3">
-            <div class="col-md-6">
-              <h4 class="m-0">Employee List</h4>
-               <small class="text-muted">
-                Total Employees: <span id="employeeCount">0</span>
-             </small>
+
+          <!-- hidden id — original, untouched -->
+          <input type="text" id="id" hidden />
+
+          <!-- NEW FEATURE: Profile photo upload — hidden until backend ready -->
+          <!-- TO ENABLE: remove d-none from #photoUploadRow and handle #photoFileInput in createEmp/updateEmp -->
+          <div class="d-none mb-4" id="photoUploadRow">
+            <label class="form-label text-muted small fw-semibold text-uppercase">Profile Photo</label>
+            <div class="border border-2 border-dashed rounded p-4 text-center bg-light" style="cursor:pointer;border-style:dashed!important" onclick="document.getElementById('photoFileInput').click()">
+              <i class="bi bi-person-circle text-muted fs-2 d-block mb-1"></i>
+              <div class="fw-medium small">Click to upload photo</div>
+              <div class="text-muted" style="font-size:11px;">JPG, PNG up to 2MB</div>
             </div>
+            <input type="file" id="photoFileInput" accept="image/*" class="d-none" />
+            <hr class="my-3" />
+          </div>
+
+          <div class="row g-3">
+
+            <!-- First Name — original id -->
             <div class="col-md-6">
+              <label class="form-label fw-medium">First Name <span class="text-danger">*</span></label>
+              <input type="text" class="form-control" id="f_name" placeholder="e.g. Ankita" required />
+            </div>
+
+            <!-- Last Name — original id -->
+            <div class="col-md-6">
+              <label class="form-label fw-medium">Last Name <span class="text-danger">*</span></label>
+              <input type="text" class="form-control" id="l_name" placeholder="e.g. Sharma" required />
+            </div>
+
+            <!-- Email — original id -->
+            <div class="col-md-6">
+              <label class="form-label fw-medium">Email <span class="text-danger">*</span></label>
+              <input type="email" class="form-control" id="email" placeholder="name@company.com" required />
+            </div>
+
+            <!-- Phone — original id -->
+            <div class="col-md-6">
+              <label class="form-label fw-medium">Phone</label>
+              <input type="text" class="form-control" id="phone" placeholder="+91 98765 43210" required />
+            </div>
+
+            <!-- NEW FEATURE: Department & Role — hidden until backend ready -->
+            <!-- TO ENABLE: remove d-none from #deptRoleRow and add dept/role to your API payload -->
+            <div class="col-12 d-none" id="deptRoleRow">
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <label class="form-label fw-medium">Department</label>
+                  <select class="form-select" id="department">
+                    <option value="">Select department…</option>
+                    <option>Engineering</option>
+                    <option>Product</option>
+                    <option>Design</option>
+                    <option>Marketing</option>
+                    <option>Sales</option>
+                    <option>HR</option>
+                    <option>Finance</option>
+                    <option>Operations</option>
+                  </select>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label fw-medium">Job Role</label>
+                  <input type="text" class="form-control" id="role" placeholder="e.g. Senior Developer" />
+                </div>
+              </div>
+            </div>
+
+            <!-- NEW FEATURE: Status toggle — hidden until backend ready -->
+            <!-- TO ENABLE: remove d-none from #statusRow and read #empStatus in createEmp/updateEmp -->
+            <div class="col-12 d-none" id="statusRow">
+              <div class="d-flex align-items-center gap-3 bg-light rounded p-3 border">
+                <div class="form-check form-switch mb-0">
+                  <input class="form-check-input" type="checkbox" role="switch" id="empStatus" checked />
+                </div>
+                <div>
+                  <div class="fw-medium small" id="statusLabel">Active</div>
+                  <div class="text-muted" style="font-size:11px;">Employee can access all systems</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Action buttons — original ids & onclick preserved exactly -->
+            <div class="col-12 d-flex gap-2 justify-content-center pt-1">
+              <button type="button" id="submitBtn" onclick="createEmp(event)" class="btn btn-primary px-4">
+                <i class="bi bi-plus-lg me-1"></i> Add Employee
+              </button>
+              <button type="button" id="updateBtn" onclick="updateEmp(event)" class="btn btn-success px-4" style="display:none;">
+                <i class="bi bi-check-lg me-1"></i> Update Employee
+              </button>
+              <button type="button" class="btn btn-outline-secondary px-3" onclick="resetForm()">
+                <i class="bi bi-arrow-counterclockwise me-1"></i> Reset
+              </button>
+            </div>
+
+          </div>
+        </div>
+      </div>
+      <!-- /Employee Form Card -->
+
+
+      <!-- Employee List Card -->
+      <div class="card shadow-sm">
+        <div class="card-header bg-white py-3">
+          <div class="row align-items-center g-2">
+            <div class="col-auto">
+              <h5 class="mb-0 fw-semibold d-flex align-items-center gap-2">
+                <i class="bi bi-table text-primary"></i> Employee List
+              </h5>
+            </div>
+            <div class="col-md ms-auto">
+              <!-- Search — original id, oninput, onclick preserved -->
               <div class="input-group">
-                <input 
-                  type="search" 
-                  id="employeeSearch" 
-                  class="form-control" 
-                  placeholder="Type a character..." 
+                <span class="input-group-text bg-white border-end-0">
+                  <i class="bi bi-search text-muted"></i>
+                </span>
+                <input
+                  type="search"
+                  id="employeeSearch"
+                  class="form-control border-start-0"
+                  placeholder="Search employees…"
                   oninput="searchEmpDeBound()"
                 />
-                <button class="btn btn-primary" type="button" id="btnSearch" onclick="searchEmpAPI()">Search</button>
+                <button class="btn btn-primary" type="button" id="btnSearch" onclick="searchEmpAPI()">
+                  Search
+                </button>
               </div>
             </div>
           </div>
-
-          <div class="table-responsive">
-            <table class="table table-bordered table-striped table-hover align-middle text-center">
-              <thead class="table-dark">
-                <tr>
-                  <th>Id</th>
-                  <th>First Name</th>
-                  <th>Last Name</th>
-                  <th>Email</th>
-                  <th>Phone</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody id="EmployeeTableBody"></tbody>
-            </table>
-            <div class="d-flex justify-content-between align-items-center mt-3">
-
-    <button
-        class="btn btn-secondary"
-        onclick="previousPage()">
-        Previous
-    </button>
-
-    <span id="pageInfo">
-        Page 1 of 1
-    </span>
-
-    <button
-        class="btn btn-secondary"
-        onclick="nextPage()">
-        Next
-    </button>
-
-</div>
-          </div>
         </div>
-      </div>
-    </div>
 
+        <!-- NEW FEATURE: Filter bar — hidden until backend ready -->
+        <!-- TO ENABLE: remove d-none from #filterBar and wire onchange to your filter/search fn -->
+        <div class="d-none border-bottom px-3 py-2 bg-light d-flex align-items-center gap-2 flex-wrap" id="filterBar">
+          <small class="text-muted fw-semibold">Filter:</small>
+          <select class="form-select form-select-sm w-auto" id="filterDept">
+            <option value="">All Departments</option>
+            <option>Engineering</option><option>Product</option><option>Design</option>
+            <option>Marketing</option><option>Sales</option><option>HR</option>
+            <option>Finance</option><option>Operations</option>
+          </select>
+          <select class="form-select form-select-sm w-auto" id="filterStatus">
+            <option value="">All Status</option>
+            <option value="active">Active</option>
+            <option value="inactive">Inactive</option>
+          </select>
+          <button class="btn btn-sm btn-outline-secondary" onclick="clearFilters()">
+            <i class="bi bi-x-lg"></i> Clear
+          </button>
+        </div>
+
+        <!-- NEW FEATURE: CSV drop zone — hidden until backend ready -->
+        <!-- TO ENABLE: remove d-none from #csvImportZone and wire #csvFileInput to handleCsvImport() -->
+        <div class="d-none m-3 border border-2 rounded p-4 text-center bg-light" id="csvImportZone" style="border-style:dashed!important">
+          <i class="bi bi-file-earmark-spreadsheet text-muted fs-2 d-block mb-1"></i>
+          <div class="fw-medium small">
+            Drop a CSV here or
+            <label for="csvFileInput" class="text-primary text-decoration-underline" style="cursor:pointer">browse</label>
+          </div>
+          <div class="text-muted" style="font-size:11px;">Required columns: first_name, last_name, email, phone</div>
+          <input type="file" id="csvFileInput" accept=".csv" class="d-none" />
+        </div>
+
+        <!-- Table -->
+        <div class="table-responsive">
+          <table class="table table-hover table-bordered align-middle mb-0">
+            <thead class="table-light">
+              <tr>
+                <th class="text-uppercase text-muted small fw-semibold">Id</th>
+                <th class="text-uppercase text-muted small fw-semibold">First Name</th>
+                <th class="text-uppercase text-muted small fw-semibold">Last Name</th>
+                <th class="text-uppercase text-muted small fw-semibold">Email</th>
+                <th class="text-uppercase text-muted small fw-semibold">Phone</th>
+                <!-- NEW FEATURE: Dept & Role columns — hidden until backend ready -->
+                <!-- TO ENABLE: remove d-none from both <th> and matching <td> in your JS row template -->
+                <th class="text-uppercase text-muted small fw-semibold d-none">Department</th>
+                <th class="text-uppercase text-muted small fw-semibold d-none">Role</th>
+                <!-- NEW FEATURE: Status column — hidden until backend ready -->
+                <th class="text-uppercase text-muted small fw-semibold d-none">Status</th>
+                <th class="text-uppercase text-muted small fw-semibold text-center">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="EmployeeTableBody">
+              <!-- JS populates rows here — no change needed -->
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Pagination — original onclick handlers preserved -->
+        <div class="card-footer bg-white d-flex align-items-center justify-content-between py-3">
+          <button class="btn btn-outline-secondary btn-sm" onclick="previousPage()">
+            <i class="bi bi-chevron-left"></i> Previous
+          </button>
+          <span class="text-muted small" id="pageInfo">Page 1 of 1</span>
+          <button class="btn btn-outline-secondary btn-sm" onclick="nextPage()">
+            Next <i class="bi bi-chevron-right"></i>
+          </button>
+        </div>
+
+      </div>
+      <!-- /Employee List Card -->
+
+    </div>
+    <!-- /container -->
+
+
+    <script>
+      /* Status toggle label — only active when #statusRow is visible */
+      var _st = document.getElementById('empStatus');
+      if (_st) {
+        _st.addEventListener('change', function () {
+          var lbl = document.getElementById('statusLabel');
+          if (lbl) lbl.textContent = this.checked ? 'Active' : 'Inactive';
+        });
+      }
+
+      /* Reset helper wired to Reset button */
+      function resetForm() {
+        ['f_name','l_name','email','phone','id'].forEach(function(id) {
+          var el = document.getElementById(id);
+          if (el) el.value = '';
+        });
+        /* new fields — safe no-ops when hidden */
+        var dept = document.getElementById('department');
+        var role = document.getElementById('role');
+        if (dept) dept.value = '';
+        if (role) role.value = '';
+        var st = document.getElementById('empStatus');
+        if (st) st.checked = true;
+        var lbl = document.getElementById('statusLabel');
+        if (lbl) lbl.textContent = 'Active';
+        /* restore buttons */
+        document.getElementById('submitBtn').style.display = '';
+        document.getElementById('updateBtn').style.display = 'none';
+      }
+
+      /* Stubs for new features — won't throw errors when hidden */
+      function clearFilters() {
+        var d = document.getElementById('filterDept');
+        var s = document.getElementById('filterStatus');
+        if (d) d.value = '';
+        if (s) s.value = '';
+      }
+      function openCsvImport() { /* TODO: show CSV import UI */ }
+      function handleCsvImport(e) { /* TODO: parse CSV, call bulk-create API */ }
+      function updateStats(data) {
+        /* TODO: set statTotal, statActive, statInactive, statDepts */
+      }
+    </script>
+
+    <!-- your existing script — unchanged -->
     <script src="./script.js"></script>
+
   </body>
 </html>
