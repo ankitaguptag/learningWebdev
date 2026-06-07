@@ -11,5 +11,12 @@ namespace emp.server.Data
         }
         public DbSet<Employee> Employees { get; set; }
 
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<EmployeeListDto>()
+                .HasNoKey();
+        }
     }
 }
