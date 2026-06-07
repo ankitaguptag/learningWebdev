@@ -1,5 +1,5 @@
 const API_URL = "https://localhost:7079/api/Employee";
-
+let searchTimer;
 let emplist = []; // Holds the master list from the database
 
 // --- GET ALL EMPLOYEES ---
@@ -32,6 +32,44 @@ function searchEmp() {
 
     // Render the matching results
     displayEmployee(filteredList);
+}
+function searchEmpDeBound() {
+
+    clearTimeout(searchTimer);
+
+    searchTimer = setTimeout(() => {
+        searchEmpAPI();
+    }, 500); // wait 500 ms after user stops typing
+}
+
+async function searchEmpAPI() {
+
+    const searchText = document
+        .getElementById("employeeSearch")
+        .value
+        .trim();
+
+    // If search box is empty, show all employees
+    if (searchText === "") {
+        getAllEmp();
+        return;
+    }
+
+    const response = await fetch(
+        `${API_URL}/search?searchText=${encodeURIComponent(searchText)}`
+    );
+
+    if (response.ok) {
+        const employees = await response.json();
+        displayEmployee(employees);
+    }
+    else {
+        alert("Search failed");
+    }
+}
+
+function updateEmployeeCount(count) {
+    document.getElementById("employeeCount").textContent = count;
 }
 
 // --- HELPER TO CLEAR SEARCH ---
@@ -70,6 +108,9 @@ async function createEmp(event) {
 
 // --- DISPLAY EMPLOYEES ---
 function displayEmployee(employees) {
+
+     updateEmployeeCount(employees.length);
+
     const tableBody = document.getElementById('EmployeeTableBody');
     tableBody.innerHTML = '';
 

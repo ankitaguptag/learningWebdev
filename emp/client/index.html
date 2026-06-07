@@ -50,18 +50,20 @@
           <div class="row align-items-center mb-3">
             <div class="col-md-6">
               <h4 class="m-0">Employee List</h4>
+               <small class="text-muted">
+                Total Employees: <span id="employeeCount">0</span>
+             </small>
             </div>
             <div class="col-md-6">
               <div class="input-group">
-                <span class="input-group-text bg-dark text-white">Filter</span>
                 <input 
                   type="search" 
                   id="employeeSearch" 
                   class="form-control" 
                   placeholder="Type a character..." 
-                  oninput="searchEmp()"
+                  oninput="searchEmpDeBound()"
                 />
-                <button class="btn btn-primary" type="button" id="btnSearch" onclick="searchEmp()">Search</button>
+                <button class="btn btn-primary" type="button" id="btnSearch" onclick="searchEmpAPI()">Search</button>
               </div>
             </div>
           </div>
