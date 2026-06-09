@@ -119,6 +119,7 @@ function displayEmployee(employees) {
 
         const row = `
         <tr>
+        <td><input type="checkbox"/></td>
             <td>${emp.id}</td>
 
             <td>

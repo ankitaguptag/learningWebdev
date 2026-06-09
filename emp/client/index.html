@@ -38,8 +38,23 @@
               <input type="text" class="form-control" id="phone" required />
             </div>
             <div class="col-12 text-center">
-              <button type="button" id="submitBtn" onclick="createEmp(event)" class="btn btn-primary">Submit</button>
-              <button type="button" id="updateBtn" onclick="updateEmp(event)" class="btn btn-success" style="display: none;">Update</button>
+              <button
+                type="button"
+                id="submitBtn"
+                onclick="createEmp(event)"
+                class="btn btn-primary"
+              >
+                Submit
+              </button>
+              <button
+                type="button"
+                id="updateBtn"
+                onclick="updateEmp(event)"
+                class="btn btn-success"
+                style="display: none"
+              >
+                Update
+              </button>
             </div>
           </form>
         </div>
@@ -50,65 +65,60 @@
           <div class="row align-items-center mb-3">
             <div class="col-md-6">
               <h4 class="m-0">Employee List</h4>
-               <small class="text-muted">
+              <small class="text-muted">
                 Total Employees: <span id="employeeCount">0</span>
-             </small>
+              </small>
             </div>
             <div class="col-md-6">
               <div class="input-group">
-                <input 
-                  type="search" 
-                  id="employeeSearch" 
-                  class="form-control" 
-                  placeholder="Type a character..." 
+                <input
+                  type="search"
+                  id="employeeSearch"
+                  class="form-control"
+                  placeholder="Type a character..."
                   oninput="searchEmpDeBound()"
                 />
-                <button class="btn btn-primary" type="button" id="btnSearch" onclick="searchEmpAPI()">Search</button>
+                <button
+                  class="btn btn-primary"
+                  type="button"
+                  id="btnSearch"
+                  onclick="searchEmpAPI()"
+                >
+                  Search
+                </button>
               </div>
             </div>
           </div>
 
-          
-<!-- <button
-    class="btn btn-warning"
-    onclick="enableBulkEdit()">
-    Bulk Edit
-</button>
+          <button class="btn btn-warning" onclick="enableBulkEdit()">
+            Bulk Edit
+          </button>
 
-<button
-    class="btn btn-success"
-    id="saveAllBtn"
-    style="display:none"
-    onclick="saveAllEmployees()">
-    Save All
-</button> -->
+          <button
+            class="btn btn-success"
+            id="saveAllBtn"
+            style="display: none"
+            onclick="saveAllEmployees()"
+          >
+            Save All
+          </button>
 
-<button
-    class="btn btn-warning"
-    onclick="enableBulkEdit()">
-    Bulk Edit
-</button>
-
-<button
-    id="saveAllBtn"
-    class="btn btn-success"
-    style="display:none"
-    onclick="saveAllEmployees()">
-    Save All
-</button>
-
-<button
-    id="cancelBulkEditBtn"
-    class="btn btn-secondary"
-    style="display:none"
-    onclick="cancelBulkEdit()">
-    Cancel
-</button>
+          <button
+            id="cancelBulkEditBtn"
+            class="btn btn-secondary"
+            style="display: none"
+            onclick="cancelBulkEdit()"
+          >
+            Cancel
+          </button>
 
           <div class="table-responsive">
-            <table class="table table-bordered table-striped table-hover align-middle text-center">
+            <table
+              class="table table-bordered table-striped table-hover align-middle text-center"
+            >
               <thead class="table-dark">
                 <tr>
+                  <th><input type="checkbox" /></th>
                   <th>Id</th>
                   <th>First Name</th>
                   <th>Last Name</th>
