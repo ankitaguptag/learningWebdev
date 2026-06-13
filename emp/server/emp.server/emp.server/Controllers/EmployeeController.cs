@@ -22,6 +22,8 @@ namespace emp.server.Controllers
         }
 
         [HttpGet]
+        [Obsolete("Use /api/Employee/GetEmployees?searchText=uihjb&currentPage=1&pageSize=10")]
+
         public IActionResult GetEmployees()
         {
             var data = _context.Employees.FromSqlRaw("EXEC getEmployees").ToList();
@@ -45,6 +47,7 @@ namespace emp.server.Controllers
         }
 
         [HttpGet("search")]
+        [Obsolete("Use /api/Employee/GetEmployees?searchText=uihjb&currentPage=1&pageSize=10")]
         public async Task<IActionResult> SearchEmployee(string searchText)
         {
             var param = new SqlParameter("@SearchText",
@@ -57,7 +60,10 @@ namespace emp.server.Controllers
 
             return Ok(data);
         }
+
         [HttpGet("search/{name}")]
+        [Obsolete("Use /api/Employee/GetEmployees?searchText=uihjb&currentPage=1&pageSize=10")]
+
         public async Task<IActionResult> SearchEmployeeName(string name)
         {
             var param = new SqlParameter("@SearchName", name);
@@ -137,6 +143,30 @@ namespace emp.server.Controllers
             {
                 message = "Employees updated successfully"
             });
+        
+        }
+
+        [HttpGet("GetEmployees")]
+        public async Task<IActionResult> GetEmployees(
+    string? searchText,
+    int currentPage = 1,
+    int pageSize=10
+    
+  )
+        {
+            var employees = await _context.Employees
+                .FromSqlRaw(
+                    @"EXEC procGetEmployees_Pagination20260609
+                @PageSize,
+                @CurrentPage,
+                @SearchText",
+                    new SqlParameter("@PageSize", pageSize),
+                    new SqlParameter("@CurrentPage", currentPage),
+                    new SqlParameter("@SearchText",
+                        (object?)searchText ?? DBNull.Value))
+                .ToListAsync();
+
+            return Ok(employees);
         }
     }
 

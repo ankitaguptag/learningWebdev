@@ -56,7 +56,7 @@ async function searchEmpAPI() {
     }
 
     const response = await fetch(
-        `${API_URL}/search?searchText=${encodeURIComponent(searchText)}`
+        `${API_URL}/search?searchText=${searchText}`
     );
 
     if (response.ok) {
@@ -187,6 +187,26 @@ function displayEmployee(employees) {
         tableBody.innerHTML += row;
     });
 }
+
+async function getEmployees() {
+    const pageSize = 10;
+    const currentPage = 1;
+    const searchText = "";
+
+    const response = await fetch(
+        `https://localhost:5001/api/Employee/GetEmployees?pageSize=${pageSize}&currentPage=${currentPage}&searchText=${searchText}`
+    );
+
+    const data = await response.json();
+
+    console.log(data);
+}
+
+getEmployees();
+
+
+
+
 
 // --- DISPLAY EMPLOYEES ---
 // function displayEmployee(employees) {
