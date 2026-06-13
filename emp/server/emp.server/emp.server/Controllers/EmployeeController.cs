@@ -154,7 +154,7 @@ namespace emp.server.Controllers
     
   )
         {
-            var employees = await _context.Employees
+            var employees = await _context.Set<EmployeeDto>()
                 .FromSqlRaw(
                     @"EXEC procGetEmployees_Pagination20260609
                 @PageSize,

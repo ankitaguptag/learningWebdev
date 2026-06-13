@@ -130,6 +130,21 @@
               <tbody id="EmployeeTableBody"></tbody>
             </table>
           </div>
+
+          <!-- Pagination Controls -->
+          <nav aria-label="Page navigation" class="mt-4">
+            <ul class="pagination justify-content-center">
+              <li class="page-item" id="prevPageItem">
+                <button class="page-link" onclick="previousPage()">Previous</button>
+              </li>
+              <li class="page-item disabled">
+                <span class="page-link">Page <span id="currentPageNum">1</span> of <span id="totalPages">1</span></span>
+              </li>
+              <li class="page-item" id="nextPageItem">
+                <button class="page-link" onclick="nextPage()">Next</button>
+              </li>
+            </ul>
+          </nav>
         </div>
       </div>
     </div>

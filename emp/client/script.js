@@ -2,14 +2,28 @@ const API_URL = "https://localhost:7079/api/Employee";
 let searchTimer;
 let emplist = []; // Holds the master list from the database
 
-// --- GET ALL EMPLOYEES ---
-async function getAllEmp() {
-    const response = await fetch(API_URL);
+// --- PAGINATION VARIABLES ---
+let currentPage = 1;
+let pageSize = 10;
+let totalRecords = 0;
+let totalPages = 1;
+let lastSearchText = ""; // Track the last search to maintain pagination
 
+// --- GET ALL EMPLOYEES ---
+async function getAllEmp(page = 1) {
+    currentPage = page;
+    const searchText = "";
+    lastSearchText = "";
+
+    const response = await fetch(
+        `${API_URL}/GetEmployees?searchText=${searchText}&currentPage=${currentPage}&pageSize=${pageSize}`
+    );
     if (response.ok) {
-        emplist = await response.json();
-        // Applies active filter or displays everything if empty
-        searchEmp(); 
+        const data = await response.json();
+        emplist = data.employees || data; // Handle both array and object responses
+        totalRecords = data[0].totalRecords || emplist.length;
+        totalPages = Math.ceil(totalRecords / pageSize);
+        displayEmployee(emplist);
     } else {
         alert("Error fetching employees");
     }
@@ -49,19 +63,25 @@ async function searchEmpAPI() {
         .value
         .trim();
 
+    lastSearchText = searchText;
+    currentPage = 1; // Reset to first page when searching
+
     // If search box is empty, show all employees
     if (searchText === "") {
-        getAllEmp();
+        getAllEmp(1);
         return;
     }
 
     const response = await fetch(
-        `${API_URL}/search?searchText=${searchText}`
+        `${API_URL}/GetEmployees?searchText=${searchText}&currentPage=${currentPage}&pageSize=${pageSize}`
     );
 
     if (response.ok) {
-        const employees = await response.json();
-        displayEmployee(employees);
+        const data = await response.json();
+        emplist = data.employees || data;
+        totalRecords = data[0].totalRecords || emplist.length;
+        totalPages = Math.ceil(totalRecords / pageSize);
+        displayEmployee(emplist);
     }
     else {
         alert("Search failed");
@@ -70,6 +90,68 @@ async function searchEmpAPI() {
 
 function updateEmployeeCount(count) {
     document.getElementById("employeeCount").textContent = count;
+}
+
+// --- UPDATE PAGINATION CONTROLS ---
+function updatePaginationControls() {
+    document.getElementById("currentPageNum").textContent = currentPage;
+    document.getElementById("totalPages").textContent = totalPages;
+
+    // Disable Previous button if on first page
+    const prevPageItem = document.getElementById("prevPageItem");
+    if (currentPage <= 1) {
+        prevPageItem.classList.add("disabled");
+    } else {
+        prevPageItem.classList.remove("disabled");
+    }
+
+    // Disable Next button if on last page
+    const nextPageItem = document.getElementById("nextPageItem");
+    if (currentPage >= totalPages) {
+        nextPageItem.classList.add("disabled");
+    } else {
+        nextPageItem.classList.remove("disabled");
+    }
+}
+
+// --- PAGINATION NAVIGATION ---
+async function nextPage() {
+    if (currentPage < totalPages) {
+        currentPage++;
+        if (lastSearchText) {
+            await searchEmpWithPage();
+        } else {
+            await getAllEmp(currentPage);
+        }
+    }
+}
+
+async function previousPage() {
+    if (currentPage > 1) {
+        currentPage--;
+        if (lastSearchText) {
+            await searchEmpWithPage();
+        } else {
+            await getAllEmp(currentPage);
+        }
+    }
+}
+
+// --- SEARCH WITH PAGINATION ---
+async function searchEmpWithPage() {
+    const response = await fetch(
+        `${API_URL}/GetEmployees?searchText=${lastSearchText}&currentPage=${currentPage}&pageSize=${pageSize}`
+    );
+
+    if (response.ok) {
+        const data = await response.json();
+        emplist = data.employees || data;
+        totalRecords = data.totalRecords || emplist.length;
+        totalPages = Math.ceil(totalRecords / pageSize);
+        displayEmployee(emplist);
+    } else {
+        alert("Failed to load page");
+    }
 }
 
 // --- HELPER TO CLEAR SEARCH ---
@@ -100,7 +182,8 @@ async function createEmp(event) {
         alert("Employee created successfully");
         document.querySelector("form").reset();
         clearSearchInput(); // Clear search box so the user sees their new entry
-        getAllEmp();
+        currentPage = 1; // Reset to first page
+        getAllEmp(1);
     } else {
         alert("Error creating employee");
     }
@@ -111,6 +194,7 @@ let bulkEditMode = false;
 function displayEmployee(employees) {
 
     updateEmployeeCount(employees.length);
+    updatePaginationControls();
 
     const tableBody = document.getElementById('EmployeeTableBody');
     tableBody.innerHTML = '';
@@ -188,21 +272,22 @@ function displayEmployee(employees) {
     });
 }
 
-async function getEmployees() {
-    const pageSize = 10;
-    const currentPage = 1;
-    const searchText = "";
+// remove after verification
+// async function getEmployees() {
+//     const pageSize = 10;
+//     const currentPage = 1;
+//     const searchText = null;
 
-    const response = await fetch(
-        `https://localhost:5001/api/Employee/GetEmployees?pageSize=${pageSize}&currentPage=${currentPage}&searchText=${searchText}`
-    );
+//     const response = await fetch(
+//         `${API_URL}/GetEmployees?searchText=${searchText}&currentPage=${currentPage}&pageSize=${pageSize}`
+//     );
 
-    const data = await response.json();
+//     const data = await response.json();
 
-    console.log(data);
-}
+//     console.log(data);
+// }
 
-getEmployees();
+//getEmployees();
 
 
 
@@ -279,7 +364,8 @@ async function updateEmp(event) {
 
         document.querySelector("form").reset();
         clearSearchInput(); // Clear the search so they can see their updated data
-        getAllEmp();
+        currentPage = 1; // Reset to first page
+        getAllEmp(1);
     } else {
         alert("Update failed");
     }
@@ -295,7 +381,8 @@ async function deleteEmp(employeeId) {
 
         if (response.ok) {
             alert("Employee deleted successfully!");
-            getAllEmp(); 
+            currentPage = 1; // Reset to first page
+            getAllEmp(1);
         } else {
             alert("Failed to delete. Server returned: " + response.status);
         }
@@ -377,7 +464,8 @@ async function saveAllEmployees() {
         document.getElementById("saveAllBtn")
             .style.display = "none";
 
-        getAllEmp(currentPage);
+        currentPage = 1;
+        getAllEmp(1);
     }
 }
 
