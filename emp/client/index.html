@@ -90,12 +90,16 @@
             </div>
           </div>
 
-          <button class="btn btn-warning" onclick="enableBulkEdit()">
+          <button class="btn btn-warning" id="bulkEditBtn" style="display:none" onclick="enableBulkEdit()">
             Bulk Edit
           </button>
 
+          <button class="btn btn-danger ms-2" id="bulkDeleteBtn" style="display:none" onclick="bulkDelete()">
+            Bulk Delete
+          </button>
+
           <button
-            class="btn btn-success"
+            class="btn btn-success ms-2"
             id="saveAllBtn"
             style="display: none"
             onclick="saveAllEmployees()"
@@ -105,7 +109,7 @@
 
           <button
             id="cancelBulkEditBtn"
-            class="btn btn-secondary"
+            class="btn btn-secondary ms-2"
             style="display: none"
             onclick="cancelBulkEdit()"
           >
@@ -118,7 +122,7 @@
             >
               <thead class="table-dark">
                 <tr>
-                  <th><input type="checkbox" /></th>
+                  <th><input type="checkbox" id="selectAllCheckbox" onclick="toggleSelectAll(this)" /></th>
                   <th>Id</th>
                   <th>First Name</th>
                   <th>Last Name</th>

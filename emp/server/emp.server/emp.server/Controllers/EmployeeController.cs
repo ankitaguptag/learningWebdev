@@ -168,6 +168,33 @@ namespace emp.server.Controllers
 
             return Ok(employees);
         }
+
+        [HttpDelete("BulkDeleteEmployees")]
+        public async Task<IActionResult> BulkDeleteEmployees([FromBody] List<int> employeeIds)
+        {
+            if (employeeIds == null || !employeeIds.Any())
+            {
+                return BadRequest("Employee IDs are required.");
+            }
+
+            var employees = await _context.Employees
+                .Where(e => employeeIds.Contains(e.Id))
+                .ToListAsync();
+
+            if (!employees.Any())
+            {
+                return NotFound("No employees found.");
+            }
+
+            _context.Employees.RemoveRange(employees);
+            await _context.SaveChangesAsync();
+
+            return Ok(new
+            {
+                Message = "Employees deleted successfully.",
+                DeletedCount = employees.Count
+            });
+        }
     }
 
 }

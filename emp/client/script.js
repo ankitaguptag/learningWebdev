@@ -8,6 +8,7 @@ let pageSize = 10;
 let totalRecords = 0;
 let totalPages = 1;
 let lastSearchText = ""; // Track the last search to maintain pagination
+let selectedIds = new Set(); // Tracks selected rows for bulk actions
 
 // --- GET ALL EMPLOYEES ---
 async function getAllEmp(page = 1) {
@@ -21,7 +22,8 @@ async function getAllEmp(page = 1) {
     if (response.ok) {
         const data = await response.json();
         emplist = data.employees || data; // Handle both array and object responses
-        totalRecords = data[0].totalRecords || emplist.length;
+        selectedIds.clear();
+        totalRecords = data[0]?.totalRecords || emplist.length;
         totalPages = Math.ceil(totalRecords / pageSize);
         displayEmployee(emplist);
     } else {
@@ -79,7 +81,8 @@ async function searchEmpAPI() {
     if (response.ok) {
         const data = await response.json();
         emplist = data.employees || data;
-        totalRecords = data[0].totalRecords || emplist.length;
+        selectedIds.clear();
+        totalRecords = data[0]?.totalRecords || emplist.length;
         totalPages = Math.ceil(totalRecords / pageSize);
         displayEmployee(emplist);
     }
@@ -112,6 +115,50 @@ function updatePaginationControls() {
     } else {
         nextPageItem.classList.remove("disabled");
     }
+
+    updateBulkActionButtons();
+}
+
+function updateBulkActionButtons() {
+    const hasSelection = selectedIds.size > 0 && !bulkEditMode;
+    document.getElementById("bulkEditBtn").style.display = hasSelection ? "inline-block" : "none";
+    document.getElementById("bulkDeleteBtn").style.display = hasSelection ? "inline-block" : "none";
+}
+
+function toggleSelectAll(headerCheckbox) {
+    const checkboxes = document.querySelectorAll(".row-select-checkbox");
+    checkboxes.forEach(cb => {
+        cb.checked = headerCheckbox.checked;
+        const id = String(cb.dataset.id);
+        if (headerCheckbox.checked) {
+            selectedIds.add(id);
+        } else {
+            selectedIds.delete(id);
+        }
+    });
+    updateBulkActionButtons();
+}
+
+function toggleEmployeeSelection(checkbox, id) {
+    const key = String(id);
+    if (checkbox.checked) {
+        selectedIds.add(key);
+    } else {
+        selectedIds.delete(key);
+    }
+
+    const selectAllCheckbox = document.getElementById("selectAllCheckbox");
+    const rowCheckboxes = document.querySelectorAll(".row-select-checkbox");
+    const checkedCount = Array.from(rowCheckboxes).filter(cb => cb.checked).length;
+
+    selectAllCheckbox.checked = checkedCount === rowCheckboxes.length && rowCheckboxes.length > 0;
+    selectAllCheckbox.indeterminate = checkedCount > 0 && checkedCount < rowCheckboxes.length;
+
+    updateBulkActionButtons();
+}
+
+function getSelectedIds() {
+    return Array.from(selectedIds);
 }
 
 // --- PAGINATION NAVIGATION ---
@@ -146,6 +193,7 @@ async function searchEmpWithPage() {
     if (response.ok) {
         const data = await response.json();
         emplist = data.employees || data;
+        selectedIds.clear();
         totalRecords = data.totalRecords || emplist.length;
         totalPages = Math.ceil(totalRecords / pageSize);
         displayEmployee(emplist);
@@ -201,9 +249,18 @@ function displayEmployee(employees) {
 
     employees.forEach(emp => {
 
+        const isChecked = selectedIds.has(String(emp.id));
         const row = `
         <tr>
-        <td><input type="checkbox"/></td>
+            <td>
+                <input
+                    type="checkbox"
+                    class="row-select-checkbox"
+                    data-id="${emp.id}"
+                    ${isChecked ? 'checked' : ''}
+                    onclick="toggleEmployeeSelection(this, '${emp.id}')"
+                />
+            </td>
             <td>${emp.id}</td>
 
             <td>
@@ -381,6 +438,7 @@ async function deleteEmp(employeeId) {
 
         if (response.ok) {
             alert("Employee deleted successfully!");
+            selectedIds.delete(String(employeeId));
             currentPage = 1; // Reset to first page
             getAllEmp(1);
         } else {
@@ -393,6 +451,8 @@ function enableBulkEdit() {
 
     bulkEditMode = true;
 
+    document.getElementById("bulkEditBtn").style.display = "none";
+    document.getElementById("bulkDeleteBtn").style.display = "none";
     document.getElementById("saveAllBtn").style.display = "inline-block";
     document.getElementById("cancelBulkEditBtn").style.display = "inline-block";
 
@@ -407,6 +467,7 @@ function cancelBulkEdit() {
     document.getElementById("cancelBulkEditBtn").style.display = "none";
 
     displayEmployee(emplist);
+    updateBulkActionButtons();
 }
 
 async function saveAllEmployees() {
@@ -465,8 +526,30 @@ async function saveAllEmployees() {
             .style.display = "none";
 
         currentPage = 1;
+        selectedIds.clear();
         getAllEmp(1);
     }
+}
+
+async function bulkDelete() {
+    const idsToDelete = getSelectedIds();
+    if (idsToDelete.length === 0) {
+        alert("Please select at least one employee to delete.");
+        return;
+    }
+
+    const confirmed = confirm(`Delete ${idsToDelete.length} selected employee(s)?`);
+    if (!confirmed) return;
+
+    // Placeholder for future bulk delete API call.
+    // Example payload: { ids: idsToDelete } 
+    // await fetch(`${API_URL}/bulk-delete`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ids: idsToDelete }) });
+
+    alert("Bulk delete request is ready. Implement the API and uncomment the fetch call.");
+
+    selectedIds.clear();
+    document.getElementById("selectAllCheckbox").checked = false;
+    updateBulkActionButtons();
 }
 
 // Run immediately on page initialization
