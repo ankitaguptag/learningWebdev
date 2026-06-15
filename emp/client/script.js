@@ -212,13 +212,17 @@ function clearSearchInput() {
 async function createEmp(event) {
     event.preventDefault();
 
+    const idValue = document.getElementById("id").value.trim();
     const employee = {
-        id: document.getElementById("id").value,
         f_name: document.getElementById("f_name").value,
         l_name: document.getElementById("l_name").value,
         email: document.getElementById("email").value,
         phone: document.getElementById("phone").value
     };
+
+    if (idValue) {
+        employee.id = parseInt(idValue, 10);
+    }
 
     const response = await fetch(API_URL, {
         method: 'POST',
@@ -233,7 +237,14 @@ async function createEmp(event) {
         currentPage = 1; // Reset to first page
         getAllEmp(1);
     } else {
-        alert("Error creating employee");
+        let errorText = "Error creating employee";
+        try {
+            const errorData = await response.json();
+            errorText = errorData.message || JSON.stringify(errorData);
+        } catch {
+            errorText += ` (status ${response.status})`;
+        }
+        alert(errorText);
     }
 }
 
@@ -397,34 +408,50 @@ function editEmp(employeeId) {
 async function updateEmp(event) {
     event.preventDefault();
 
-    const id = document.getElementById("id").value;
+    const id = document.getElementById("id").value.trim();
+    if (!id) {
+        alert("Update failed: missing employee id.");
+        return;
+    }
 
     const employee = {
+        id: parseInt(id, 10),
         f_name: document.getElementById("f_name").value,
         l_name: document.getElementById("l_name").value,
         email: document.getElementById("email").value,
         phone: document.getElementById("phone").value
     };
 
-    const response = await fetch(`${API_URL}/${id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(employee)
-    });
+    try {
+        const response = await fetch(`${API_URL}/${id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(employee)
+        });
 
-    if (response.ok) {
-        alert("Employee updated successfully");
+        if (response.ok) {
+            alert("Employee updated successfully");
 
-        document.getElementById("submitBtn").style.display = "inline-block";
-        document.getElementById("updateBtn").style.display = "none";
-        document.getElementById("id").readOnly = false;
+            document.getElementById("submitBtn").style.display = "inline-block";
+            document.getElementById("updateBtn").style.display = "none";
+            document.getElementById("id").readOnly = false;
 
-        document.querySelector("form").reset();
-        clearSearchInput(); // Clear the search so they can see their updated data
-        currentPage = 1; // Reset to first page
-        getAllEmp(1);
-    } else {
-        alert("Update failed");
+            document.querySelector("form").reset();
+            clearSearchInput();
+            currentPage = 1;
+            getAllEmp(1);
+        } else {
+            let errorText = `Update failed (status ${response.status})`;
+            try {
+                const errorData = await response.json();
+                errorText = errorData.message || JSON.stringify(errorData) || errorText;
+            } catch (err) {
+                // ignore parse errors
+            }
+            alert(errorText);
+        }
+    } catch (error) {
+        alert(`Update failed: ${error.message}`);
     }
 }
 
