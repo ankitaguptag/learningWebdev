@@ -10,6 +10,9 @@ let totalPages = 1;
 let lastSearchText = ""; // Track the last search to maintain pagination
 let selectedIds = new Set(); // Tracks selected rows for bulk actions
 
+
+
+
 // --- GET ALL EMPLOYEES ---
 async function getAllEmp(page = 1) {
     currentPage = page;
