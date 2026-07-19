@@ -21,7 +21,7 @@ namespace from_backend_v8.Controllers
         }
 
         [HttpGet]
-        public IActionResult GetStudents()    
+        public IActionResult GetStudents()
         {
             var data = _context.Students.FromSqlRaw("EXEC procGetAllStudent").ToList();
             return Ok(data);
@@ -36,6 +36,27 @@ namespace from_backend_v8.Controllers
            );
             return Ok();
 
+        }
+        [HttpGet("GetStudent")]
+        public async Task<IActionResult> GetStudents(
+            string? searchText,
+            int currentPage = 1,
+            int pageSize = 5
+            )
+        {
+            var students = await _context.Set<Student>()
+            .FromSqlRaw(
+              @"EXEC procGetStudentPagination2026713
+                @PageSize,
+                @CurrentPage,
+                @SearchText",
+                new SqlParameter("@PageSize", pageSize),
+                new SqlParameter("@CurrentPage", currentPage),
+                new SqlParameter("@SearchText",
+                (object?)searchText ?? DBNull.Value))
+            .ToListAsync();
+
+            return Ok(students);
         }
 
 

@@ -61,5 +61,31 @@
       }
     ],
     "ReturnTypes": []
+  },
+  {
+    "ContainingType": "from_backend_v8.Controllers.StudentController",
+    "Method": "GetStudents",
+    "RelativePath": "api/Student/GetStudent",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "searchText",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "currentPage",
+        "Type": "System.Int32",
+        "IsRequired": false
+      },
+      {
+        "Name": "pageSize",
+        "Type": "System.Int32",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
   }
 ]
