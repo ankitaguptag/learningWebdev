@@ -94,67 +94,79 @@ export default function StudentForm({ onCreate, onUpdate, editing, onCancel }) {
   }
 
   return (
-    <form className="p-3 border rounded" onSubmit={handleSubmit}>
-      <div className="text-danger mb-2">{error}</div>
+    <form onSubmit={handleSubmit} noValidate>
+      {error && (
+        <div className="alert alert-danger py-2 d-flex align-items-center gap-2" role="alert">
+          <i className="bi bi-exclamation-circle-fill"></i>
+          <span>{error}</span>
+        </div>
+      )}
 
-      <label>Id:</label>
-      <input name="StudentID" value={form.StudentID} onChange={handleChange} className="form-control" />
+      <div className="row g-3">
+        <div className="col-md-3">
+          <label className="form-label fw-semibold">Student ID</label>
+          <input
+            name="StudentID"
+            value={form.StudentID}
+            onChange={handleChange}
+            className="form-control"
+            placeholder="e.g. 1001"
+            disabled={!!editing}
+          />
+        </div>
+        <div className="col-md-3">
+          <label className="form-label fw-semibold">First Name</label>
+          <input name="FirstName" value={form.FirstName} onChange={handleChange} className="form-control" placeholder="First name" />
+        </div>
+        <div className="col-md-3">
+          <label className="form-label fw-semibold">Last Name</label>
+          <input name="LastName" value={form.LastName} onChange={handleChange} className="form-control" placeholder="Last name" />
+        </div>
+        <div className="col-md-3">
+          <label className="form-label fw-semibold">Date of Birth</label>
+          <input name="Dateofbirth" type="date" value={form.Dateofbirth} onChange={handleChange} className="form-control" />
+        </div>
 
-      <div className="row mb-2">
-        <div className="col">
-          <label>First Name:</label>
-          <input name="FirstName" value={form.FirstName} onChange={handleChange} className="form-control" />
+        <div className="col-md-6">
+          <label className="form-label fw-semibold d-block">Gender</label>
+          <div className="btn-group" role="group">
+            {['Male', 'Female', 'Other'].map(g => (
+              <React.Fragment key={g}>
+                <input
+                  type="radio"
+                  className="btn-check"
+                  name="Gender"
+                  id={`gender-${g}`}
+                  value={g}
+                  checked={form.Gender === g}
+                  onChange={handleChange}
+                  autoComplete="off"
+                />
+                <label className="btn btn-outline-primary" htmlFor={`gender-${g}`}>{g}</label>
+              </React.Fragment>
+            ))}
+          </div>
         </div>
-        <div className="col">
-          <label>Last Name:</label>
-          <input name="LastName" value={form.LastName} onChange={handleChange} className="form-control" />
+        <div className="col-md-3">
+          <label className="form-label fw-semibold">Age</label>
+          <input name="Age" type="number" min="0" value={form.Age} onChange={handleChange} className="form-control" placeholder="Age" />
         </div>
-      </div>
+        <div className="col-md-3">
+          <label className="form-label fw-semibold">Email</label>
+          <input name="Email" type="email" value={form.Email} onChange={handleChange} className="form-control" placeholder="name@example.com" />
+        </div>
 
-      <label>Date of Birth:</label>
-      <input name="Dateofbirth" type="date" value={form.Dateofbirth} onChange={handleChange} className="form-control" />
+        <div className="col-md-6">
+          <label className="form-label fw-semibold">Phone</label>
+          <input name="Phone" value={form.Phone} onChange={handleChange} className="form-control" placeholder="Phone number" />
+        </div>
+        <div className="col-md-6">
+          <label className="form-label fw-semibold">Address</label>
+          <input name="Address" value={form.Address} onChange={handleChange} className="form-control" placeholder="Street address" />
+        </div>
 
-      <label className="mt-2">Gender:</label>
-      <div>
-        <div className="form-check form-check-inline">
-          <input className="form-check-input" type="radio" name="Gender" value="Male" checked={form.Gender === 'Male'} onChange={handleChange} />
-          <label className="form-check-label">Male</label>
-        </div>
-        <div className="form-check form-check-inline">
-          <input className="form-check-input" type="radio" name="Gender" value="Female" checked={form.Gender === 'Female'} onChange={handleChange} />
-          <label className="form-check-label">Female</label>
-        </div>
-        <div className="form-check form-check-inline">
-          <input className="form-check-input" type="radio" name="Gender" value="Other" checked={form.Gender === 'Other'} onChange={handleChange} />
-          <label className="form-check-label">Other</label>
-        </div>
-      </div>
-
-      <div className="row mb-2 mt-2">
-        <div className="col">
-          <label>Age:</label>
-          <input name="Age" type="number" value={form.Age} onChange={handleChange} className="form-control" />
-        </div>
-        <div className="col">
-          <label>Email:</label>
-          <input name="Email" type="email" value={form.Email} onChange={handleChange} className="form-control" />
-        </div>
-      </div>
-
-      <div className="row mb-2">
-        <div className="col">
-          <label>Phone:</label>
-          <input name="Phone" value={form.Phone} onChange={handleChange} className="form-control" />
-        </div>
-        <div className="col">
-          <label>Address:</label>
-          <input name="Address" value={form.Address} onChange={handleChange} className="form-control" />
-        </div>
-      </div>
-
-      <div className="row mb-2">
-        <div className="col">
-          <label>City:</label>
+        <div className="col-md-4">
+          <label className="form-label fw-semibold">City</label>
           <select name="City" value={form.City} onChange={handleChange} className="form-select">
             <option value="">-- Select City --</option>
             <option value="Delhi">Delhi</option>
@@ -162,8 +174,8 @@ export default function StudentForm({ onCreate, onUpdate, editing, onCancel }) {
             <option value="Ghaziabad">Ghaziabad</option>
           </select>
         </div>
-        <div className="col">
-          <label>State:</label>
+        <div className="col-md-4">
+          <label className="form-label fw-semibold">State</label>
           <select name="State" value={form.State} onChange={handleChange} className="form-select">
             <option value="">-- Select State --</option>
             <option value="Delhi">Delhi</option>
@@ -171,11 +183,8 @@ export default function StudentForm({ onCreate, onUpdate, editing, onCancel }) {
             <option value="Maharashtra">Maharashtra</option>
           </select>
         </div>
-      </div>
-
-      <div className="row mb-2">
-        <div className="col">
-          <label>Course:</label>
+        <div className="col-md-4">
+          <label className="form-label fw-semibold">Course</label>
           <select name="Course" value={form.Course} onChange={handleChange} className="form-select">
             <option value="">-- Select Course --</option>
             <option value="BCA">BCA</option>
@@ -183,17 +192,26 @@ export default function StudentForm({ onCreate, onUpdate, editing, onCancel }) {
             <option value="IIT">IIT</option>
           </select>
         </div>
-        <div className="col">
-          <label>Admission Date:</label>
+
+        <div className="col-md-4">
+          <label className="form-label fw-semibold">Admission Date</label>
           <input name="AdmiDate" type="date" value={form.AdmiDate} onChange={handleChange} className="form-control" />
         </div>
       </div>
 
-      <div className="mt-3">
-        <button type="submit" className="btn btn-primary me-2">
-          {editing ? 'Update' : 'Submit'}
+      <hr className="my-4" />
+
+      <div className="d-flex gap-2">
+        <button type="submit" className="btn btn-primary px-4">
+          <i className={`bi ${editing ? 'bi-check-circle' : 'bi-plus-circle'} me-1`}></i>
+          {editing ? 'Update Student' : 'Add Student'}
         </button>
-        {editing && <button type="button" className="btn btn-secondary" onClick={onCancel}>Cancel</button>}
+        {editing && (
+          <button type="button" className="btn btn-outline-secondary px-4" onClick={onCancel}>
+            <i className="bi bi-x-circle me-1"></i>
+            Cancel
+          </button>
+        )}
       </div>
     </form>
   );
