@@ -79,9 +79,9 @@ function App() {
           </div>
         )}
 
-        <div className="row g-4">
+        <div className="row justify-content-center">
           {/* Form card */}
-          <div className="col-12">
+          <div className="col-6">
             <div className="card shadow-sm border-0">
               <div className="card-header bg-white border-bottom-0 pt-3">
                 <h5 className="mb-0 text-primary">

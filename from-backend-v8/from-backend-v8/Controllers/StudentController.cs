@@ -40,11 +40,10 @@ namespace from_backend_v8.Controllers
 
 
         [HttpPost]
-        public IActionResult Create(Student student)
+        public IActionResult Create(StudentDto student)
         {
             _context.Database.ExecuteSqlInterpolated($@"
-        EXEC InsertStudent
-        @ID={student.StudentID},
+        EXEC InsertStudent_20260719
         @FirstName={student.FirstName},
         @LastName={student.LastName},
         @Gender={student.Gender},
@@ -64,17 +63,12 @@ namespace from_backend_v8.Controllers
 
 
         [HttpPut("{id}")] // <--- Add this "{id}"
-        public IActionResult Update(int id, [FromBody] Student student) // <--- Add 'int id' parameter
+        public IActionResult Update(int id, [FromBody] StudentDto student) // <--- Add 'int id' parameter
         {
             // Optional: Safety check to ensure the URL ID matches the Body ID
-            if (id != student.StudentID)
-            {
-                return BadRequest("ID mismatch");
-            }
 
             _context.Database.ExecuteSqlInterpolated($@"
         EXEC Studentupdate
-        @ID={student.StudentID},
         @FirstName={student.FirstName},
         @LastName={student.LastName},
         @Gender={student.Gender},
