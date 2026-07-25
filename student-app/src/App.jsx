@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import StudentForm from './StudentForm';
 import StudentTable from './StudentTable';
 import * as api from './api';
@@ -14,6 +14,7 @@ function App() {
  const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [totalRecords, setTotalRecords] = useState(0);
+  const searchTimerRef = useRef(null);
 
 async function load(page = currentPage, searchText = search) {
     setLoading(true);
@@ -77,12 +78,18 @@ async function load(page = currentPage, searchText = search) {
   }
 
 
-  function handleSearchChange(event) {
-    const value = event.target.value;
-    setSearch(value);
-    load(1, value);
+function handleSearchChange(event) {
+  const value = event.target.value;
+  setSearch(value);
+
+  if (searchTimerRef.current) {
+    clearTimeout(searchTimerRef.current);
   }
 
+  searchTimerRef.current = setTimeout(() => {
+    load(1, value);
+  }, 400);
+}
   function previousPage() {
     if (currentPage > 1) {
       load(currentPage - 1, search);
@@ -159,7 +166,7 @@ async function load(page = currentPage, searchText = search) {
                       className="form-control"
                       placeholder="Search by first name..."
                       value={search}
-                      onChange={e => setSearch(e.target.value)}
+                      onChange={handleSearchChange}
                     />
                   </div>
                 </div>
