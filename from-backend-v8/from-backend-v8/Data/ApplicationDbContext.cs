@@ -8,6 +8,12 @@ namespace from_backend_v8.Data
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             :base(options) { }
         public DbSet<Student> Students { get; set; }
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
 
+            modelBuilder.Entity<StudentListDto>()
+                .HasNoKey();
+        }
     }
 }

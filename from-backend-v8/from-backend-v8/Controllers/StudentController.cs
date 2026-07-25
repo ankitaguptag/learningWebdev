@@ -34,7 +34,7 @@ namespace from_backend_v8.Controllers
 
 )
         {
-            var students = await _context.Set<StudentDto>()
+            var students = await _context.Set<StudentListDto>()
                 .FromSqlRaw(
                     @"EXEC procGetStudentPagination2026721
                 @PageSize,

@@ -1,7 +1,16 @@
 const API_URL = 'https://localhost:7222/api/Student';
 
-export async function fetchStudents() {
-  const res = await fetch(API_URL, { method: 'GET', headers: { accept: '*/*' } });
+export async function fetchStudents({ searchText = '', currentPage = 1, pageSize = 5 } = {}) {
+  const params = new URLSearchParams({
+    searchText,
+    currentPage: String(currentPage),
+    pageSize: String(pageSize),
+  });
+
+  const res = await fetch(`${API_URL}/GetStudents?${params.toString()}`, {
+    method: 'GET',
+    headers: { accept: '*/*' },
+  });
   if (!res.ok) throw new Error('Fetch failed: ' + res.status);
   return res.json();
 }

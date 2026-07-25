@@ -3,18 +3,45 @@ import StudentForm from './StudentForm';
 import StudentTable from './StudentTable';
 import * as api from './api';
 
+const PAGE_SIZE = 5;
+
 function App() {
   const [students, setStudents] = useState([]);
   const [editing, setEditing] = useState(null);
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+ const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalRecords, setTotalRecords] = useState(0);
 
-  async function load() {
+async function load(page = currentPage, searchText = search) {
     setLoading(true);
     try {
-      const data = await api.fetchStudents();
-      setStudents(data);
+      const data = await api.fetchStudents({
+        searchText,
+        currentPage: page,
+        pageSize: PAGE_SIZE,
+      });
+
+      const items = Array.isArray(data) ? data : data.students || [];
+      const firstItem = items[0] || {};
+
+      const records = Number(
+        firstItem.totalRecord ??
+          firstItem.TotalRecord ??
+          firstItem.totalRecords ??
+          firstItem.TotalRecords ??
+          items.length ??
+          0
+      );
+
+      const pages = records > 0 ? Math.ceil(records / PAGE_SIZE) : 1;
+
+      setStudents(items);
+      setCurrentPage(page);
+      setTotalPages(pages);
+      setTotalRecords(records);
       setError(null);
     } catch (err) {
       console.error(err);
@@ -24,12 +51,12 @@ function App() {
     }
   }
 
-  useEffect(() => { load(); }, []);
+  useEffect(() => { load(1,''); }, []);
 
   async function handleCreate(student) {
     try {
       await api.createStudent(student);
-      await load();
+      await load(1, search);
     } catch (err) { console.error(err); setError('Create failed. Please try again.'); }
   }
 
@@ -37,7 +64,7 @@ function App() {
     try {
       await api.updateStudent(student.StudentID || student.studentID, student);
       setEditing(null);
-      await load();
+       await load(currentPage, search);
     } catch (err) { console.error(err); setError('Update failed. Please try again.'); }
   }
 
@@ -45,14 +72,28 @@ function App() {
     if (!window.confirm('Delete this student?')) return;
     try {
       await api.deleteStudent(id);
-      await load();
+     await load(currentPage, search);
     } catch (err) { console.error(err); setError('Delete failed. Please try again.'); }
   }
 
-  const filtered = students.filter(s => {
-    if (!search) return true;
-    return (s.firstName || s.FirstName || '').toLowerCase().startsWith(search.toLowerCase());
-  });
+
+  function handleSearchChange(event) {
+    const value = event.target.value;
+    setSearch(value);
+    load(1, value);
+  }
+
+  function previousPage() {
+    if (currentPage > 1) {
+      load(currentPage - 1, search);
+    }
+  }
+
+  function nextPage() {
+    if (currentPage < totalPages) {
+      load(currentPage + 1, search);
+    }
+  }
 
   return (
     <div className="bg-light min-vh-100">
@@ -64,7 +105,7 @@ function App() {
             Student Manager
           </span>
           <span className="badge bg-primary rounded-pill fs-6">
-            {students.length} student{students.length !== 1 ? 's' : ''}
+            {totalRecords || students.length} student{(totalRecords || students.length) !== 1 ? 's' : ''}
           </span>
         </div>
       </nav>
@@ -130,13 +171,18 @@ function App() {
                       <span className="visually-hidden">Loading...</span>
                     </div>
                   </div>
-                ) : filtered.length === 0 ? (
+                ) : students.length === 0 ? (
                   <div className="text-center text-muted py-5">
                     <i className="bi bi-inbox fs-1 d-block mb-2"></i>
                     No students found.
                   </div>
                 ) : (
-                  <StudentTable students={filtered} onEdit={(s) => setEditing(s)} onDelete={handleDelete} />
+                  <StudentTable students={students} onEdit={(s) => setEditing(s)} onDelete={handleDelete} 
+                     currentPage={currentPage}
+                    totalPages={totalPages}
+                    previousPage={previousPage}
+                    nextPage={nextPage}
+                  />
                 )}
               </div>
             </div>
