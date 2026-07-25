@@ -26,6 +26,28 @@ namespace from_backend_v8.Controllers
             var data = _context.Students.FromSqlRaw("EXEC procGetAllStudent").ToList();
             return Ok(data);
         }
+        [HttpGet("GetStudents")]
+        public async Task<IActionResult> GetStudents(
+  string? searchText,
+  int currentPage = 1,
+  int pageSize = 10
+
+)
+        {
+            var students = await _context.Set<StudentDto>()
+                .FromSqlRaw(
+                    @"EXEC procGetStudentPagination2026721
+                @PageSize,
+                @CurrentPage,
+                @SearchText",
+                    new SqlParameter("@PageSize", pageSize),
+                    new SqlParameter("@CurrentPage", currentPage),
+                    new SqlParameter("@SearchText",
+                        (object?)searchText ?? DBNull.Value))
+                .ToListAsync();
+
+            return Ok(students);
+        }
 
         [HttpDelete("{id}")]
         public IActionResult DeleteById(int id)
