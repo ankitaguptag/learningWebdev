@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using System;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace from_backend_v8.Controllers
@@ -91,10 +92,11 @@ namespace from_backend_v8.Controllers
 
             _context.Database.ExecuteSqlInterpolated($@"
         EXEC Studentupdate
+        @StudentID={id},
         @FirstName={student.FirstName},
         @LastName={student.LastName},
         @Gender={student.Gender},
-        @Dateofbirth={student.Dateofbirth},
+        @DateofBirth={student.Dateofbirth},
         @Age={student.Age},
         @Email={student.Email},
         @Phone={student.Phone},
@@ -108,5 +110,39 @@ namespace from_backend_v8.Controllers
             return Ok(new { message = "Student Updated Successfully" });
         }
 
+[HttpPut("bulk-update")]
+    public IActionResult BulkUpdate([FromBody] List<StudentBulkUpdateDto> students)
+    {
+        var json = JsonSerializer.Serialize(students);
+
+        _context.Database.ExecuteSqlRaw(
+            "EXEC procBulkUpdateStudent2026727_test @StudentJson",
+            new SqlParameter("@StudentJson", json)
+        );
+
+        return Ok(new
+        {
+            message = "Students updated successfully"
+        });
+    }
+
+        [HttpDelete("BulkDeleteStudent")]
+        public async Task<IActionResult> BulkDeleteStudents([FromBody] List<int> studentIds)
+        {
+            if (studentIds == null || !studentIds.Any())
+                return BadRequest("Student IDs are required.");
+
+            string ids = string.Join(",", studentIds);
+
+            await _context.Database.ExecuteSqlRawAsync(
+                "EXEC procBulkDeleteStudents2026729 @StudentsIds",
+                new SqlParameter("@StudentsIds", ids)
+            );
+
+            return Ok(new
+            {
+                Message = "Students deleted successfully."
+            });
+        }
     } 
 }
