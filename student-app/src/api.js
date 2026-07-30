@@ -40,3 +40,35 @@ export async function deleteStudent(id) {
   if (!res.ok) throw new Error('Delete failed: ' + res.status);
   return true;
 }
+export const bulkUpdateStudents = async (students) => {
+  const response = await fetch(`${API_URL}/bulk-update`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      accept: "*/*",
+    },
+    body: JSON.stringify(students),
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to update students");
+  }
+
+  return await response.json();
+};
+
+export const bulkDeleteStudents = async (studentIds) => {
+  const response = await fetch(`${API_URL}/BulkDeleteStudent`, {
+    method: "DELETE",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(studentIds),
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to delete students");
+  }
+
+  return await response.json();
+};

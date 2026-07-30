@@ -14,7 +14,7 @@ namespace emp.server.Migrations
                 name: "F_name",
                 table: "Employees",
                 type: "varchar(50)",
-                nullable: false,
+                nullable: true,
                 oldClrType: typeof(int),
                 oldType: "int");
         }

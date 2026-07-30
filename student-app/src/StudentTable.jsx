@@ -25,12 +25,66 @@ export default function StudentTable({
   totalPages,
   previousPage,
   nextPage,
+  selectedStudents = [],
+  setSelectedStudents = () => {},
+  onBulkDelete,
+  onBulkUpdate,
 }) {
+  const visibleIds = students.map((s) => s.studentID ?? s.StudentID ?? "");
+
+  function toggleOne(id) {
+    if (!id) return;
+    const exists = selectedStudents.includes(id);
+    if (exists) setSelectedStudents(selectedStudents.filter((x) => x !== id));
+    else setSelectedStudents([...selectedStudents, id]);
+  }
+
+  function toggleAll() {
+    const allSelected = visibleIds.every((id) => selectedStudents.includes(id) && id !== "");
+    if (allSelected) {
+      // remove visible ids
+      setSelectedStudents(selectedStudents.filter((x) => !visibleIds.includes(x)));
+    } else {
+      // add visible ids (unique)
+      const next = Array.from(new Set([...selectedStudents, ...visibleIds.filter(Boolean)]));
+      setSelectedStudents(next);
+    }
+  }
+
+  const anySelected = selectedStudents && selectedStudents.length > 0;
   return (
     <div className="table-responsive">
+      <div className="d-flex justify-content-between align-items-center mb-2">
+        <div>
+          <button
+            className="btn btn-outline-primary btn-sm me-2"
+            disabled={!anySelected}
+            onClick={() => onBulkUpdate && onBulkUpdate(selectedStudents)}
+          >
+            Bulk Update
+          </button>
+          <button
+            className="btn btn-danger btn-sm"
+            disabled={!anySelected}
+            onClick={() => onBulkDelete && onBulkDelete(selectedStudents)}
+          >
+            Delete Selected
+          </button>
+        </div>
+        <div className="text-muted small">{students.length} shown</div>
+      </div>
+
       <table className="table table-hover align-middle mb-0">
         <thead className="table-light">
           <tr>
+            <th style={{ width: 40 }}>
+              <input
+                type="checkbox"
+                aria-label="select all"
+                checked={visibleIds.length > 0 && visibleIds.every((id) => id && selectedStudents.includes(id))}
+                onChange={toggleAll}
+              />
+            </th>
             <th>ID</th>
             <th>Name</th>
             <th>DOB</th>
@@ -61,6 +115,15 @@ export default function StudentTable({
 
             return (
               <tr key={id}>
+                <td>
+                  <input
+                    type="checkbox"
+                    aria-label={`select-${id}`}
+                    checked={selectedStudents.includes(id)}
+                    onChange={() => toggleOne(id)}
+                  />
+                </td>
+
                 <td className="text-muted">#{id}</td>
 
                 <td>

@@ -11,6 +11,8 @@ function App() {
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [successMessage, setSuccessMessage] = useState('');
+  const [selectedStudents, setSelectedStudents] = useState([]);
  const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [totalRecords, setTotalRecords] = useState(0);
@@ -77,6 +79,60 @@ async function load(page = currentPage, searchText = search) {
     } catch (err) { console.error(err); setError('Delete failed. Please try again.'); }
   }
 
+  async function handleBulkDelete(ids) {
+    if (!ids || ids.length === 0) return;
+    if (!window.confirm(`Delete ${ids.length} selected student(s)?`)) return;
+    try {
+      const payload = ids.map((x) => Number(x));
+      await api.bulkDeleteStudents(payload);
+      setSelectedStudents([]);
+      setSuccessMessage('Selected students deleted.');
+      setError(null);
+      await load(currentPage, search);
+    } catch (err) { console.error(err); setError('Bulk delete failed. Please try again.'); setSuccessMessage(''); }
+  }
+
+  async function handleBulkUpdate() {
+    if (!selectedStudents || selectedStudents.length === 0) return;
+    if (!window.confirm(`Update ${selectedStudents.length} selected student(s)?`)) return;
+
+    const selectedIdSet = new Set(selectedStudents.map((id) => String(id)));
+    const payload = students
+      .filter((student) => selectedIdSet.has(String(student.studentID ?? student.StudentID ?? "")))
+      .map((student) => ({
+        StudentID: Number(student.studentID ?? student.StudentID),
+        FirstName: student.firstName ?? student.FirstName ?? '',
+        LastName: student.lastName ?? student.LastName ?? '',
+        Gender: student.gender ?? student.Gender ?? '',
+        Dateofbirth: student.dateofbirth ?? student.Dateofbirth ?? '',
+        Age: Number(student.age ?? student.Age ?? 0),
+        Email: student.email ?? student.Email ?? '',
+        Phone: student.phone ?? student.Phone ?? '',
+        Address: student.address ?? student.Address ?? '',
+        City: student.city ?? student.City ?? '',
+        State: student.state ?? student.State ?? '',
+        Course: student.course ?? student.Course ?? '',
+        AdmiDate: student.admiDate ?? student.AdmiDate ?? '',
+      }));
+
+    if (payload.length === 0) {
+      setError('No selected students available to update.');
+      setSuccessMessage('');
+      return;
+    }
+
+    try {
+      await api.bulkUpdateStudents(payload);
+      setSelectedStudents([]);
+      setSuccessMessage(`Updated ${payload.length} student(s).`);
+      setError(null);
+      await load(currentPage, search);
+    } catch (err) {
+      console.error(err);
+      setError('Bulk update failed. Please try again.');
+      setSuccessMessage('');
+    }
+  }
 
 function handleSearchChange(event) {
   const value = event.target.value;
@@ -124,6 +180,14 @@ function handleSearchChange(event) {
             <i className="bi bi-exclamation-triangle-fill me-2"></i>
             {error}
             <button type="button" className="btn-close" onClick={() => setError(null)}></button>
+          </div>
+        )}
+
+        {successMessage && (
+          <div className="alert alert-success alert-dismissible fade show shadow-sm" role="alert">
+            <i className="bi bi-check-circle-fill me-2"></i>
+            {successMessage}
+            <button type="button" className="btn-close" onClick={() => setSuccessMessage('')}></button>
           </div>
         )}
 
@@ -189,6 +253,10 @@ function handleSearchChange(event) {
                     totalPages={totalPages}
                     previousPage={previousPage}
                     nextPage={nextPage}
+                    selectedStudents={selectedStudents}
+                    setSelectedStudents={setSelectedStudents}
+                    onBulkDelete={handleBulkDelete}
+                    onBulkUpdate={handleBulkUpdate}
                   />
                 )}
               </div>
