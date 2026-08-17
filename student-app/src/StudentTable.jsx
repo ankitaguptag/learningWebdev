@@ -1,4 +1,5 @@
 import React from "react";
+import * as XLSX from "xlsx";
 
 function formatDate(d) {
   if (!d) return "—";
@@ -57,6 +58,35 @@ export default function StudentTable({
       setSelectedStudents(next);
     }
   }
+  function downloadExcel() {
+  if (!students || students.length === 0) {
+    alert("No student data available");
+    return;
+  }
+
+  const excelData = students.map((s) => ({
+    ID: s.studentID ?? s.StudentID ?? "",
+    FirstName: s.firstName ?? s.FirstName ?? "",
+    LastName: s.lastName ?? s.LastName ?? "",
+    Gender: s.gender ?? s.Gender ?? "",
+    DateOfBirth: s.dateofbirth ?? s.Dateofbirth ?? "",
+    Age: s.age ?? s.Age ?? "",
+    Email: s.email ?? s.Email ?? "",
+    Phone: s.phone ?? s.Phone ?? "",
+    Address: s.address ?? s.Address ?? "",
+    City: s.city ?? s.City ?? "",
+    State: s.state ?? s.State ?? "",
+    Course: s.course ?? s.Course ?? "",
+    AdmissionDate: s.admiDate ?? s.AdmiDate ?? "",
+  }));
+
+  const worksheet = XLSX.utils.json_to_sheet(excelData);
+  const workbook = XLSX.utils.book_new();
+
+  XLSX.utils.book_append_sheet(workbook, worksheet, "Students");
+
+  XLSX.writeFile(workbook, "Student_List.xlsx");
+}
 
   const anySelected = selectedStudents && selectedStudents.length > 0;
   const isBulkEditing = bulkEditIds && bulkEditIds.length > 0;
@@ -85,6 +115,13 @@ export default function StudentTable({
           </button>
         </div>
         <div className="text-muted small">{students.length} shown</div>
+        <button
+  className="btn btn-success btn-sm"
+  onClick={downloadExcel}
+>
+  <i className="bi bi-file-earmark-excel me-1"></i>
+  Download Excel
+</button>
       </div>
 
       <table className="table table-hover align-middle mb-0">
