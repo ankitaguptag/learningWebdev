@@ -29,46 +29,59 @@ export default function StudentTable({
   setSelectedStudents = () => {},
   onBulkDelete,
   onBulkUpdate,
+  bulkEditIds = [],
+  bulkEditValues = {},
+  onBulkEditField = () => {},
+  onBulkSave = () => {},
+  onBulkCancel = () => {},
 }) {
   const visibleIds = students.map((s) => s.studentID ?? s.StudentID ?? "");
 
+  function isSelected(id) {
+    return selectedStudents.some((item) => String(item) === String(id));
+  }
+
   function toggleOne(id) {
     if (!id) return;
-    const exists = selectedStudents.includes(id);
-    if (exists) setSelectedStudents(selectedStudents.filter((x) => x !== id));
+    const exists = isSelected(id);
+    if (exists) setSelectedStudents(selectedStudents.filter((x) => String(x) !== String(id)));
     else setSelectedStudents([...selectedStudents, id]);
   }
 
   function toggleAll() {
-    const allSelected = visibleIds.every((id) => selectedStudents.includes(id) && id !== "");
+    const allSelected = visibleIds.every((id) => id !== "" && isSelected(id));
     if (allSelected) {
-      // remove visible ids
-      setSelectedStudents(selectedStudents.filter((x) => !visibleIds.includes(x)));
+      setSelectedStudents(selectedStudents.filter((x) => !visibleIds.some((id) => String(id) === String(x))));
     } else {
-      // add visible ids (unique)
       const next = Array.from(new Set([...selectedStudents, ...visibleIds.filter(Boolean)]));
       setSelectedStudents(next);
     }
   }
 
   const anySelected = selectedStudents && selectedStudents.length > 0;
+  const isBulkEditing = bulkEditIds && bulkEditIds.length > 0;
   return (
     <div className="table-responsive">
-      <div className="d-flex justify-content-between align-items-center mb-2">
-        <div>
+      <div className="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
+        <div className="d-flex flex-wrap gap-2">
           <button
-            className="btn btn-outline-primary btn-sm me-2"
+            className="btn btn-outline-primary btn-sm"
             disabled={!anySelected}
-            onClick={() => onBulkUpdate && onBulkUpdate(selectedStudents)}
+            onClick={() => (isBulkEditing ? onBulkSave?.() : onBulkUpdate?.(selectedStudents))}
           >
-            Bulk Update
+            {isBulkEditing ? "Save Changes" : "Bulk Edit"}
           </button>
+          {isBulkEditing && (
+            <button className="btn btn-outline-secondary btn-sm" onClick={() => onBulkCancel?.()}>
+              Cancel
+            </button>
+          )}
           <button
-            className="btn btn-danger btn-sm"
+            className="btn btn-outline-danger btn-sm"
             disabled={!anySelected}
             onClick={() => onBulkDelete && onBulkDelete(selectedStudents)}
           >
-            Delete Selected
+            Bulk Delete
           </button>
         </div>
         <div className="text-muted small">{students.length} shown</div>
@@ -77,11 +90,11 @@ export default function StudentTable({
       <table className="table table-hover align-middle mb-0">
         <thead className="table-light">
           <tr>
-            <th style={{ width: 40 }}>
+            <th style={{ width: 42 }}>
               <input
                 type="checkbox"
                 aria-label="select all"
-                checked={visibleIds.length > 0 && visibleIds.every((id) => id && selectedStudents.includes(id))}
+                checked={visibleIds.length > 0 && visibleIds.every((id) => id && isSelected(id))}
                 onChange={toggleAll}
               />
             </th>
@@ -112,6 +125,8 @@ export default function StudentTable({
             const initials = `${firstName.charAt(0)}${lastName.charAt(
               0
             )}`.toUpperCase();
+            const isEditingRow = bulkEditIds.some((bulkId) => String(bulkId) === String(id));
+            const rowValues = bulkEditValues[String(id)] || {};
 
             return (
               <tr key={id}>
@@ -119,36 +134,75 @@ export default function StudentTable({
                   <input
                     type="checkbox"
                     aria-label={`select-${id}`}
-                    checked={selectedStudents.includes(id)}
+                    checked={isSelected(id)}
                     onChange={() => toggleOne(id)}
                   />
                 </td>
 
                 <td className="text-muted">#{id}</td>
 
-                <td>
-                  <div className="d-flex align-items-center gap-2">
-                    <div
-                      className="d-flex align-items-center justify-content-center rounded-circle bg-primary text-white fw-semibold flex-shrink-0"
-                      style={{
-                        width: 32,
-                        height: 32,
-                        fontSize: "0.75rem",
-                      }}
-                    >
-                      {initials || "?"}
+                <td style={{ minWidth: 180 }}>
+                  {isEditingRow ? (
+                    <div className="d-flex flex-column gap-2">
+                      <input
+                        className="form-control form-control-sm"
+                        value={rowValues.FirstName ?? ""}
+                        onChange={(e) => onBulkEditField?.(id, "FirstName", e.target.value)}
+                        placeholder="First name"
+                      />
+                      <input
+                        className="form-control form-control-sm"
+                        value={rowValues.LastName ?? ""}
+                        onChange={(e) => onBulkEditField?.(id, "LastName", e.target.value)}
+                        placeholder="Last name"
+                      />
                     </div>
+                  ) : (
+                    <div className="d-flex align-items-center gap-2">
+                      <div
+                        className="d-flex align-items-center justify-content-center rounded-circle bg-primary text-white fw-semibold flex-shrink-0"
+                        style={{
+                          width: 32,
+                          height: 32,
+                          fontSize: "0.75rem",
+                        }}
+                      >
+                        {initials || "?"}
+                      </div>
 
-                    <span className="fw-medium">
-                      {firstName} {lastName}
-                    </span>
-                  </div>
+                      <span className="fw-medium">
+                        {firstName} {lastName}
+                      </span>
+                    </div>
+                  )}
                 </td>
 
-                <td>{formatDate(s.dateofbirth ?? s.Dateofbirth)}</td>
+                <td style={{ minWidth: 120 }}>
+                  {isEditingRow ? (
+                    <input
+                      type="date"
+                      className="form-control form-control-sm"
+                      value={rowValues.Dateofbirth ?? ""}
+                      onChange={(e) => onBulkEditField?.(id, "Dateofbirth", e.target.value)}
+                    />
+                  ) : (
+                    formatDate(s.dateofbirth ?? s.Dateofbirth)
+                  )}
+                </td>
 
-                <td>
-                  {gender ? (
+                <td style={{ minWidth: 110 }}>
+                  {isEditingRow ? (
+                    <select
+                      className="form-select form-select-sm"
+                      value={rowValues.Gender ?? ""}
+                      onChange={(e) => onBulkEditField?.(id, "Gender", e.target.value)}
+                    >
+                      <option value="">Select</option>
+                      <option value="Male">Male</option>
+                      <option value="Female">Female</option>
+                      <option value="Other">Other</option>
+                    </select>
+                  ) : gender ? (
                     <span
                       className={`badge rounded-pill ${
                         genderBadge[gender] || "bg-light text-dark"
@@ -161,34 +215,90 @@ export default function StudentTable({
                   )}
                 </td>
 
-                <td>{s.age ?? s.Age ?? "—"}</td>
-
-                <td>
-                  <div className="small">
-                    {email && (
-                      <div>
-                        <i className="bi bi-envelope me-1 text-muted"></i>
-                        {email}
-                      </div>
-                    )}
-                    {phone && (
-                      <div className="text-muted">
-                        <i className="bi bi-telephone me-1"></i>
-                        {phone}
-                      </div>
-                    )}
-                  </div>
+                <td style={{ minWidth: 90 }}>
+                  {isEditingRow ? (
+                    <input
+                      type="number"
+                      className="form-control form-control-sm"
+                      value={rowValues.Age ?? ""}
+                      onChange={(e) => onBulkEditField?.(id, "Age", e.target.value)}
+                    />
+                  ) : (
+                    s.age ?? s.Age ?? "—"
+                  )}
                 </td>
 
-                <td>
-                  <div className="small">
-                    {city || "—"}
-                    {state ? `, ${state}` : ""}
-                  </div>
+                <td style={{ minWidth: 220 }}>
+                  {isEditingRow ? (
+                    <div className="d-flex flex-column gap-2">
+                      <input
+                        className="form-control form-control-sm"
+                        value={rowValues.Email ?? ""}
+                        onChange={(e) => onBulkEditField?.(id, "Email", e.target.value)}
+                        placeholder="Email"
+                      />
+                      <input
+                        className="form-control form-control-sm"
+                        value={rowValues.Phone ?? ""}
+                        onChange={(e) => onBulkEditField?.(id, "Phone", e.target.value)}
+                        placeholder="Phone"
+                      />
+                    </div>
+                  ) : (
+                    <div className="small">
+                      {email && (
+                        <div>
+                          <i className="bi bi-envelope me-1 text-muted"></i>
+                          {email}
+                        </div>
+                      )}
+                      {phone && (
+                        <div className="text-muted">
+                          <i className="bi bi-telephone me-1"></i>
+                          {phone}
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </td>
 
-                <td>
-                  {course ? (
+                <td style={{ minWidth: 180 }}>
+                  {isEditingRow ? (
+                    <div className="d-flex flex-column gap-2">
+                      <input
+                        className="form-control form-control-sm"
+                        value={rowValues.City ?? ""}
+                        onChange={(e) => onBulkEditField?.(id, "City", e.target.value)}
+                        placeholder="City"
+                      />
+                      <input
+                        className="form-control form-control-sm"
+                        value={rowValues.State ?? ""}
+                        onChange={(e) => onBulkEditField?.(id, "State", e.target.value)}
+                        placeholder="State"
+                      />
+                    </div>
+                  ) : (
+                    <div className="small">
+                      {city || "—"}
+                      {state ? `, ${state}` : ""}
+                    </div>
+                  )}
+                </td>
+
+                <td style={{ minWidth: 120 }}>
+                  {isEditingRow ? (
+                    <select
+                      className="form-select form-select-sm"
+                      value={rowValues.Course ?? ""}
+                      onChange={(e) => onBulkEditField?.(id, "Course", e.target.value)}
+                    >
+                      <option value="">Select</option>
+                      <option value="BCA">BCA</option>
+                      <option value="MCA">MCA</option>
+                      <option value="IIT">IIT</option>
+                    </select>
+                  ) : course ? (
                     <span className="badge bg-info-subtle text-info-emphasis">
                       {course}
                     </span>
@@ -197,24 +307,39 @@ export default function StudentTable({
                   )}
                 </td>
 
-                <td>{formatDate(s.admiDate ?? s.AdmiDate)}</td>
+                <td style={{ minWidth: 120 }}>
+                  {isEditingRow ? (
+                    <input
+                      type="date"
+                      className="form-control form-control-sm"
+                      value={rowValues.AdmiDate ?? ""}
+                      onChange={(e) => onBulkEditField?.(id, "AdmiDate", e.target.value)}
+                    />
+                  ) : (
+                    formatDate(s.admiDate ?? s.AdmiDate)
+                  )}
+                </td>
 
-                <td className="text-end">
-                  <div className="btn-group btn-group-sm">
-                    <button
-                      className="btn btn-outline-primary"
-                      onClick={() => onEdit(s)}
-                    >
-                      Edit
-                    </button>
+                <td className="text-end" style={{ minWidth: 110 }}>
+                  {isEditingRow ? (
+                    <span className="text-muted small">Editing</span>
+                  ) : (
+                    <div className="btn-group btn-group-sm">
+                      <button
+                        className="btn btn-outline-primary"
+                        onClick={() => onEdit(s)}
+                      >
+                        Edit
+                      </button>
 
-                    <button
-                      className="btn btn-outline-danger"
-                      onClick={() => onDelete(id)}
-                    >
-                      Delete
-                    </button>
-                  </div>
+                      <button
+                        className="btn btn-outline-danger"
+                        onClick={() => onDelete(id)}
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  )}
                 </td>
               </tr>
             );

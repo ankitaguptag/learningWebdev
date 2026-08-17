@@ -13,7 +13,9 @@ function App() {
   const [error, setError] = useState(null);
   const [successMessage, setSuccessMessage] = useState('');
   const [selectedStudents, setSelectedStudents] = useState([]);
- const [currentPage, setCurrentPage] = useState(1);
+  const [bulkEditIds, setBulkEditIds] = useState([]);
+  const [bulkEditValues, setBulkEditValues] = useState({});
+  const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [totalRecords, setTotalRecords] = useState(0);
   const searchTimerRef = useRef(null);
@@ -56,6 +58,93 @@ async function load(page = currentPage, searchText = search) {
 
   useEffect(() => { load(1,''); }, []);
 
+  function startBulkEdit(ids = selectedStudents) {
+    const validIds = Array.isArray(ids) ? ids.filter(Boolean) : [];
+    if (!validIds.length) return;
+
+    const initialValues = {};
+    validIds.forEach((id) => {
+      const key = String(id);
+      const student = students.find((item) => String(item.studentID ?? item.StudentID ?? "") === key);
+      if (!student) return;
+
+      initialValues[key] = {
+        StudentID: student.studentID ?? student.StudentID ?? "",
+        FirstName: student.firstName ?? student.FirstName ?? "",
+        LastName: student.lastName ?? student.LastName ?? "",
+        Dateofbirth: student.dateofbirth ?? student.Dateofbirth ?? "",
+        Gender: student.gender ?? student.Gender ?? "",
+        Age: student.age ?? student.Age ?? "",
+        Email: student.email ?? student.Email ?? "",
+        Phone: student.phone ?? student.Phone ?? "",
+        Address: student.address ?? student.Address ?? "",
+        City: student.city ?? student.City ?? "",
+        State: student.state ?? student.State ?? "",
+        Course: student.course ?? student.Course ?? "",
+        AdmiDate: student.admiDate ?? student.AdmiDate ?? "",
+      };
+    });
+
+    setBulkEditIds(validIds);
+    setBulkEditValues(initialValues);
+  }
+
+  function updateBulkEditValue(id, field, value) {
+    const key = String(id);
+    setBulkEditValues((prev) => ({
+      ...prev,
+      [key]: {
+        ...(prev[key] || {}),
+        [field]: value,
+      },
+    }));
+  }
+
+  async function saveBulkEdit() {
+    if (!bulkEditIds.length) return;
+
+    const payload = bulkEditIds.map((id) => {
+      const key = String(id);
+      const original = students.find((item) => String(item.studentID ?? item.StudentID ?? "") === key) || {};
+      const values = bulkEditValues[key] || {};
+
+      return {
+        StudentID: Number(values.StudentID ?? original.studentID ?? original.StudentID ?? id),
+        FirstName: values.FirstName ?? original.firstName ?? original.FirstName ?? "",
+        LastName: values.LastName ?? original.lastName ?? original.LastName ?? "",
+        Gender: values.Gender ?? original.gender ?? original.Gender ?? "",
+        Dateofbirth: values.Dateofbirth ?? original.dateofbirth ?? original.Dateofbirth ?? "",
+        Age: Number(values.Age ?? original.age ?? original.Age ?? 0),
+        Email: values.Email ?? original.email ?? original.Email ?? "",
+        Phone: values.Phone ?? original.phone ?? original.Phone ?? "",
+        Address: values.Address ?? original.address ?? original.Address ?? "",
+        City: values.City ?? original.city ?? original.City ?? "",
+        State: values.State ?? original.state ?? original.State ?? "",
+        Course: values.Course ?? original.course ?? original.Course ?? "",
+        AdmiDate: values.AdmiDate ?? original.admiDate ?? original.AdmiDate ?? "",
+      };
+    });
+
+    try {
+      await api.bulkUpdateStudents(payload);
+      setBulkEditIds([]);
+      setBulkEditValues({});
+      setSelectedStudents([]);
+      setSuccessMessage(`Updated ${payload.length} student(s).`);
+      setError(null);
+      await load(currentPage, search);
+    } catch (err) {
+      console.error(err);
+      setError('Bulk update failed. Please try again.');
+      setSuccessMessage('');
+    }
+  }
+
+  function cancelBulkEdit() {
+    setBulkEditIds([]);
+    setBulkEditValues({});
+  }
+
   async function handleCreate(student) {
     try {
       await api.createStudent(student);
@@ -92,46 +181,9 @@ async function load(page = currentPage, searchText = search) {
     } catch (err) { console.error(err); setError('Bulk delete failed. Please try again.'); setSuccessMessage(''); }
   }
 
-  async function handleBulkUpdate() {
-    if (!selectedStudents || selectedStudents.length === 0) return;
-    if (!window.confirm(`Update ${selectedStudents.length} selected student(s)?`)) return;
-
-    const selectedIdSet = new Set(selectedStudents.map((id) => String(id)));
-    const payload = students
-      .filter((student) => selectedIdSet.has(String(student.studentID ?? student.StudentID ?? "")))
-      .map((student) => ({
-        StudentID: Number(student.studentID ?? student.StudentID),
-        FirstName: student.firstName ?? student.FirstName ?? '',
-        LastName: student.lastName ?? student.LastName ?? '',
-        Gender: student.gender ?? student.Gender ?? '',
-        Dateofbirth: student.dateofbirth ?? student.Dateofbirth ?? '',
-        Age: Number(student.age ?? student.Age ?? 0),
-        Email: student.email ?? student.Email ?? '',
-        Phone: student.phone ?? student.Phone ?? '',
-        Address: student.address ?? student.Address ?? '',
-        City: student.city ?? student.City ?? '',
-        State: student.state ?? student.State ?? '',
-        Course: student.course ?? student.Course ?? '',
-        AdmiDate: student.admiDate ?? student.AdmiDate ?? '',
-      }));
-
-    if (payload.length === 0) {
-      setError('No selected students available to update.');
-      setSuccessMessage('');
-      return;
-    }
-
-    try {
-      await api.bulkUpdateStudents(payload);
-      setSelectedStudents([]);
-      setSuccessMessage(`Updated ${payload.length} student(s).`);
-      setError(null);
-      await load(currentPage, search);
-    } catch (err) {
-      console.error(err);
-      setError('Bulk update failed. Please try again.');
-      setSuccessMessage('');
-    }
+  async function handleBulkUpdate(ids) {
+    if (!ids || ids.length === 0) return;
+    startBulkEdit(ids);
   }
 
 function handleSearchChange(event) {
@@ -257,6 +309,11 @@ function handleSearchChange(event) {
                     setSelectedStudents={setSelectedStudents}
                     onBulkDelete={handleBulkDelete}
                     onBulkUpdate={handleBulkUpdate}
+                    bulkEditIds={bulkEditIds}
+                    bulkEditValues={bulkEditValues}
+                    onBulkEditField={updateBulkEditValue}
+                    onBulkSave={saveBulkEdit}
+                    onBulkCancel={cancelBulkEdit}
                   />
                 )}
               </div>
