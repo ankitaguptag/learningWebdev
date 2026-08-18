@@ -15,6 +15,19 @@ export async function fetchStudents({ searchText = '', currentPage = 1, pageSize
   return res.json();
 }
 
+export async function fetchAllStudents() {
+  const params = new URLSearchParams({
+  });
+
+  const res = await fetch(`${API_URL}`, {
+    method: 'GET',
+    headers: { accept: '*/*' },
+  });
+  if (!res.ok) throw new Error('Fetch failed: ' + res.status);
+  return res.json();
+}
+
+ 
 export async function createStudent(student) {
   const res = await fetch(API_URL, {
     method: 'POST',

@@ -1,5 +1,6 @@
 import React from "react";
 import * as XLSX from "xlsx";
+import { fetchAllStudents } from "./api";
 
 function formatDate(d) {
   if (!d) return "—";
@@ -45,48 +46,61 @@ export default function StudentTable({
   function toggleOne(id) {
     if (!id) return;
     const exists = isSelected(id);
-    if (exists) setSelectedStudents(selectedStudents.filter((x) => String(x) !== String(id)));
+    if (exists)
+      setSelectedStudents(
+        selectedStudents.filter((x) => String(x) !== String(id)),
+      );
     else setSelectedStudents([...selectedStudents, id]);
   }
 
   function toggleAll() {
     const allSelected = visibleIds.every((id) => id !== "" && isSelected(id));
     if (allSelected) {
-      setSelectedStudents(selectedStudents.filter((x) => !visibleIds.some((id) => String(id) === String(x))));
+      setSelectedStudents(
+        selectedStudents.filter(
+          (x) => !visibleIds.some((id) => String(id) === String(x)),
+        ),
+      );
     } else {
-      const next = Array.from(new Set([...selectedStudents, ...visibleIds.filter(Boolean)]));
+      const next = Array.from(
+        new Set([...selectedStudents, ...visibleIds.filter(Boolean)]),
+      );
       setSelectedStudents(next);
     }
   }
-  function downloadExcel() {
-  if (!students || students.length === 0) {
-    alert("No student data available");
-    return;
+  async function downloadAllStudentExcel() {
+    const allStudents = await fetchAllStudents();
+
+    console.log(allStudents);
+
+    if (!allStudents || allStudents.length === 0) {
+      alert("No student data available");
+      return;
+    }
+
+    const excelData = allStudents.map((s) => ({
+      ID: s.studentID ?? s.StudentID ?? "",
+      FirstName: s.firstName ?? s.FirstName ?? "",
+      LastName: s.lastName ?? s.LastName ?? "",
+      Gender: s.gender ?? s.Gender ?? "",
+      DateOfBirth: s.dateofbirth ?? s.Dateofbirth ?? "",
+      Age: s.age ?? s.Age ?? "",
+      Email: s.email ?? s.Email ?? "",
+      Phone: s.phone ?? s.Phone ?? "",
+      Address: s.address ?? s.Address ?? "",
+      City: s.city ?? s.City ?? "",
+      State: s.state ?? s.State ?? "",
+      Course: s.course ?? s.Course ?? "",
+      AdmissionDate: s.admiDate ?? s.AdmiDate ?? "",
+    }));
+
+    const worksheet = XLSX.utils.json_to_sheet(excelData);
+    const workbook = XLSX.utils.book_new();
+
+    XLSX.utils.book_append_sheet(workbook, worksheet, "All Students");
+
+    XLSX.writeFile(workbook, "All_Student_List.xlsx");
   }
-
-  const excelData = students.map((s) => ({
-    ID: s.studentID ?? s.StudentID ?? "",
-    FirstName: s.firstName ?? s.FirstName ?? "",
-    LastName: s.lastName ?? s.LastName ?? "",
-    Gender: s.gender ?? s.Gender ?? "",
-    DateOfBirth: s.dateofbirth ?? s.Dateofbirth ?? "",
-    Age: s.age ?? s.Age ?? "",
-    Email: s.email ?? s.Email ?? "",
-    Phone: s.phone ?? s.Phone ?? "",
-    Address: s.address ?? s.Address ?? "",
-    City: s.city ?? s.City ?? "",
-    State: s.state ?? s.State ?? "",
-    Course: s.course ?? s.Course ?? "",
-    AdmissionDate: s.admiDate ?? s.AdmiDate ?? "",
-  }));
-
-  const worksheet = XLSX.utils.json_to_sheet(excelData);
-  const workbook = XLSX.utils.book_new();
-
-  XLSX.utils.book_append_sheet(workbook, worksheet, "Students");
-
-  XLSX.writeFile(workbook, "Student_List.xlsx");
-}
 
   const anySelected = selectedStudents && selectedStudents.length > 0;
   const isBulkEditing = bulkEditIds && bulkEditIds.length > 0;
@@ -97,12 +111,17 @@ export default function StudentTable({
           <button
             className="btn btn-outline-primary btn-sm"
             disabled={!anySelected}
-            onClick={() => (isBulkEditing ? onBulkSave?.() : onBulkUpdate?.(selectedStudents))}
+            onClick={() =>
+              isBulkEditing ? onBulkSave?.() : onBulkUpdate?.(selectedStudents)
+            }
           >
             {isBulkEditing ? "Save Changes" : "Bulk Edit"}
           </button>
           {isBulkEditing && (
-            <button className="btn btn-outline-secondary btn-sm" onClick={() => onBulkCancel?.()}>
+            <button
+              className="btn btn-outline-secondary btn-sm"
+              onClick={() => onBulkCancel?.()}
+            >
               Cancel
             </button>
           )}
@@ -116,12 +135,12 @@ export default function StudentTable({
         </div>
         <div className="text-muted small">{students.length} shown</div>
         <button
-  className="btn btn-success btn-sm"
-  onClick={downloadExcel}
->
-  <i className="bi bi-file-earmark-excel me-1"></i>
-  Download Excel
-</button>
+          className="btn btn-success btn-sm"
+          onClick={downloadAllStudentExcel}
+        >
+          <i className="bi bi-file-earmark-excel me-1"></i>
+          Download All Student in Excel
+        </button>
       </div>
 
       <table className="table table-hover align-middle mb-0">
@@ -131,7 +150,10 @@ export default function StudentTable({
               <input
                 type="checkbox"
                 aria-label="select all"
-                checked={visibleIds.length > 0 && visibleIds.every((id) => id && isSelected(id))}
+                checked={
+                  visibleIds.length > 0 &&
+                  visibleIds.every((id) => id && isSelected(id))
+                }
                 onChange={toggleAll}
               />
             </th>
@@ -160,9 +182,11 @@ export default function StudentTable({
             const state = s.state ?? s.State ?? "";
             const course = s.course ?? s.Course ?? "";
             const initials = `${firstName.charAt(0)}${lastName.charAt(
-              0
+              0,
             )}`.toUpperCase();
-            const isEditingRow = bulkEditIds.some((bulkId) => String(bulkId) === String(id));
+            const isEditingRow = bulkEditIds.some(
+              (bulkId) => String(bulkId) === String(id),
+            );
             const rowValues = bulkEditValues[String(id)] || {};
 
             return (
@@ -184,13 +208,17 @@ export default function StudentTable({
                       <input
                         className="form-control form-control-sm"
                         value={rowValues.FirstName ?? ""}
-                        onChange={(e) => onBulkEditField?.(id, "FirstName", e.target.value)}
+                        onChange={(e) =>
+                          onBulkEditField?.(id, "FirstName", e.target.value)
+                        }
                         placeholder="First name"
                       />
                       <input
                         className="form-control form-control-sm"
                         value={rowValues.LastName ?? ""}
-                        onChange={(e) => onBulkEditField?.(id, "LastName", e.target.value)}
+                        onChange={(e) =>
+                          onBulkEditField?.(id, "LastName", e.target.value)
+                        }
                         placeholder="Last name"
                       />
                     </div>
@@ -220,7 +248,9 @@ export default function StudentTable({
                       type="date"
                       className="form-control form-control-sm"
                       value={rowValues.Dateofbirth ?? ""}
-                      onChange={(e) => onBulkEditField?.(id, "Dateofbirth", e.target.value)}
+                      onChange={(e) =>
+                        onBulkEditField?.(id, "Dateofbirth", e.target.value)
+                      }
                     />
                   ) : (
                     formatDate(s.dateofbirth ?? s.Dateofbirth)
@@ -232,7 +262,9 @@ export default function StudentTable({
                     <select
                       className="form-select form-select-sm"
                       value={rowValues.Gender ?? ""}
-                      onChange={(e) => onBulkEditField?.(id, "Gender", e.target.value)}
+                      onChange={(e) =>
+                        onBulkEditField?.(id, "Gender", e.target.value)
+                      }
                     >
                       <option value="">Select</option>
                       <option value="Male">Male</option>
@@ -258,10 +290,12 @@ export default function StudentTable({
                       type="number"
                       className="form-control form-control-sm"
                       value={rowValues.Age ?? ""}
-                      onChange={(e) => onBulkEditField?.(id, "Age", e.target.value)}
+                      onChange={(e) =>
+                        onBulkEditField?.(id, "Age", e.target.value)
+                      }
                     />
                   ) : (
-                    s.age ?? s.Age ?? "—"
+                    (s.age ?? s.Age ?? "—")
                   )}
                 </td>
 
@@ -271,13 +305,17 @@ export default function StudentTable({
                       <input
                         className="form-control form-control-sm"
                         value={rowValues.Email ?? ""}
-                        onChange={(e) => onBulkEditField?.(id, "Email", e.target.value)}
+                        onChange={(e) =>
+                          onBulkEditField?.(id, "Email", e.target.value)
+                        }
                         placeholder="Email"
                       />
                       <input
                         className="form-control form-control-sm"
                         value={rowValues.Phone ?? ""}
-                        onChange={(e) => onBulkEditField?.(id, "Phone", e.target.value)}
+                        onChange={(e) =>
+                          onBulkEditField?.(id, "Phone", e.target.value)
+                        }
                         placeholder="Phone"
                       />
                     </div>
@@ -305,13 +343,17 @@ export default function StudentTable({
                       <input
                         className="form-control form-control-sm"
                         value={rowValues.City ?? ""}
-                        onChange={(e) => onBulkEditField?.(id, "City", e.target.value)}
+                        onChange={(e) =>
+                          onBulkEditField?.(id, "City", e.target.value)
+                        }
                         placeholder="City"
                       />
                       <input
                         className="form-control form-control-sm"
                         value={rowValues.State ?? ""}
-                        onChange={(e) => onBulkEditField?.(id, "State", e.target.value)}
+                        onChange={(e) =>
+                          onBulkEditField?.(id, "State", e.target.value)
+                        }
                         placeholder="State"
                       />
                     </div>
@@ -328,7 +370,9 @@ export default function StudentTable({
                     <select
                       className="form-select form-select-sm"
                       value={rowValues.Course ?? ""}
-                      onChange={(e) => onBulkEditField?.(id, "Course", e.target.value)}
+                      onChange={(e) =>
+                        onBulkEditField?.(id, "Course", e.target.value)
+                      }
                     >
                       <option value="">Select</option>
                       <option value="BCA">BCA</option>
@@ -350,7 +394,9 @@ export default function StudentTable({
                       type="date"
                       className="form-control form-control-sm"
                       value={rowValues.AdmiDate ?? ""}
-                      onChange={(e) => onBulkEditField?.(id, "AdmiDate", e.target.value)}
+                      onChange={(e) =>
+                        onBulkEditField?.(id, "AdmiDate", e.target.value)
+                      }
                     />
                   ) : (
                     formatDate(s.admiDate ?? s.AdmiDate)
@@ -387,11 +433,7 @@ export default function StudentTable({
       {/* Pagination */}
       <nav aria-label="Page navigation" className="mt-4">
         <ul className="pagination justify-content-center">
-          <li
-            className={`page-item ${
-              currentPage === 1 ? "disabled" : ""
-            }`}
-          >
+          <li className={`page-item ${currentPage === 1 ? "disabled" : ""}`}>
             <button
               className="page-link"
               onClick={previousPage}
