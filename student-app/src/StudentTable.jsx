@@ -78,6 +78,8 @@ export default function StudentTable({
       return;
     }
 
+    //const currentDateTime = new Date();
+     const currentDateTime = new Date().toLocaleString("en-IN");
     const excelData = allStudents.map((s) => ({
       ID: s.studentID ?? s.StudentID ?? "",
       FirstName: s.firstName ?? s.FirstName ?? "",
@@ -92,6 +94,8 @@ export default function StudentTable({
       State: s.state ?? s.State ?? "",
       Course: s.course ?? s.Course ?? "",
       AdmissionDate: s.admiDate ?? s.AdmiDate ?? "",
+      DownloadedAt: currentDateTime
+
     }));
 
     const worksheet = XLSX.utils.json_to_sheet(excelData);
