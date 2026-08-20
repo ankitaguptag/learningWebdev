@@ -71,16 +71,29 @@ export default function StudentTable({
   async function downloadAllStudentExcel() {
     const allStudents = await fetchAllStudents();
 
-    console.log(allStudents);
-
     if (!allStudents || allStudents.length === 0) {
       alert("No student data available");
       return;
     }
 
-    //const currentDateTime = new Date();
-     const currentDateTime = new Date().toLocaleString("en-IN");
-    const excelData = allStudents.map((s) => ({
+         function formatStamp(d){
+          const year = d.getFullYear();
+          const month = String(d.getMonth()+1).padStart(2,'0');
+          const day = String(d.getDay()).padStart(2,'0');
+          const hh = String(d.getHours()).padStart(2,'0');
+          const mm = String(d.getMinutes()).padStart(2,'0');
+          return  `${year}_${month}_${day}_${hh}_${mm}`
+         }
+
+    const currentDateTime = new Date();
+    console.log(currentDateTime);
+
+  const currentTimeFormat = formatStamp(currentDateTime);
+  //console.log(currentTimeFormat);
+
+     //const currentDateTime1 = new Date().toLocaleString("en-IN");
+     //console.log(currentDateTime)
+     const excelData = allStudents.map((s) => ({
       ID: s.studentID ?? s.StudentID ?? "",
       FirstName: s.firstName ?? s.FirstName ?? "",
       LastName: s.lastName ?? s.LastName ?? "",
@@ -94,7 +107,7 @@ export default function StudentTable({
       State: s.state ?? s.State ?? "",
       Course: s.course ?? s.Course ?? "",
       AdmissionDate: s.admiDate ?? s.AdmiDate ?? "",
-      DownloadedAt: currentDateTime
+      DateTime: currentDateTime
 
     }));
 
@@ -103,7 +116,7 @@ export default function StudentTable({
 
     XLSX.utils.book_append_sheet(workbook, worksheet, "All Students");
 
-    XLSX.writeFile(workbook, "All_Student_List.xlsx");
+    XLSX.writeFile(workbook, `All_Student_List_${currentTimeFormat}.xlsx`);
   }
 
   const anySelected = selectedStudents && selectedStudents.length > 0;
