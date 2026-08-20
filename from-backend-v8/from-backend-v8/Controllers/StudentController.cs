@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using System;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace from_backend_v8.Controllers
@@ -26,6 +27,28 @@ namespace from_backend_v8.Controllers
             var data = _context.Students.FromSqlRaw("EXEC procGetAllStudent").ToList();
             return Ok(data);
         }
+        [HttpGet("GetStudents")]
+        public async Task<IActionResult> GetStudents(
+  string? searchText,
+  int currentPage = 1,
+  int pageSize = 10
+
+)
+        {
+            var students = await _context.Set<StudentListDto>()
+                .FromSqlRaw(
+                    @"EXEC procGetStudentPagination2026721
+                @PageSize,
+                @CurrentPage,
+                @SearchText",
+                    new SqlParameter("@PageSize", pageSize),
+                    new SqlParameter("@CurrentPage", currentPage),
+                    new SqlParameter("@SearchText",
+                        (object?)searchText ?? DBNull.Value))
+                .ToListAsync();
+
+            return Ok(students);
+        }
 
         [HttpDelete("{id}")]
         public IActionResult DeleteById(int id)
@@ -40,11 +63,10 @@ namespace from_backend_v8.Controllers
 
 
         [HttpPost]
-        public IActionResult Create(Student student)
+        public IActionResult Create(StudentDto student)
         {
             _context.Database.ExecuteSqlInterpolated($@"
-        EXEC InsertStudent
-        @ID={student.StudentID},
+        EXEC InsertStudent_20260719
         @FirstName={student.FirstName},
         @LastName={student.LastName},
         @Gender={student.Gender},
@@ -64,21 +86,17 @@ namespace from_backend_v8.Controllers
 
 
         [HttpPut("{id}")] // <--- Add this "{id}"
-        public IActionResult Update(int id, [FromBody] Student student) // <--- Add 'int id' parameter
+        public IActionResult Update(int id, [FromBody] StudentDto student) // <--- Add 'int id' parameter
         {
             // Optional: Safety check to ensure the URL ID matches the Body ID
-            if (id != student.StudentID)
-            {
-                return BadRequest("ID mismatch");
-            }
 
             _context.Database.ExecuteSqlInterpolated($@"
         EXEC Studentupdate
-        @ID={student.StudentID},
+        @StudentID={id},
         @FirstName={student.FirstName},
         @LastName={student.LastName},
         @Gender={student.Gender},
-        @Dateofbirth={student.Dateofbirth},
+        @DateofBirth={student.Dateofbirth},
         @Age={student.Age},
         @Email={student.Email},
         @Phone={student.Phone},
@@ -92,5 +110,39 @@ namespace from_backend_v8.Controllers
             return Ok(new { message = "Student Updated Successfully" });
         }
 
+[HttpPut("bulk-update")]
+    public IActionResult BulkUpdate([FromBody] List<StudentBulkUpdateDto> students)
+    {
+        var json = JsonSerializer.Serialize(students);
+
+        _context.Database.ExecuteSqlRaw(
+            "EXEC procBulkUpdateStudent2026727_test @StudentJson",
+            new SqlParameter("@StudentJson", json)
+        );
+
+        return Ok(new
+        {
+            message = "Students updated successfully"
+        });
+    }
+
+        [HttpDelete("BulkDeleteStudent")]
+        public async Task<IActionResult> BulkDeleteStudents([FromBody] List<int> studentIds)
+        {
+            if (studentIds == null || !studentIds.Any())
+                return BadRequest("Student IDs are required.");
+
+            string ids = string.Join(",", studentIds);
+
+            await _context.Database.ExecuteSqlRawAsync(
+                "EXEC procBulkDeleteStudents2026729 @StudentsIds",
+                new SqlParameter("@StudentsIds", ids)
+            );
+
+            return Ok(new
+            {
+                Message = "Students deleted successfully."
+            });
+        }
     } 
 }
