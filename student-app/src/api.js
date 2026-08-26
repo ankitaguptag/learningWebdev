@@ -1,4 +1,6 @@
-const API_URL = 'https://localhost:7222/api/Student';
+const API_URL = 'https://localhost:7222/api';
+
+
 
 export async function fetchStudents({ searchText = '', currentPage = 1, pageSize = 5 } = {}) {
   const params = new URLSearchParams({
@@ -7,7 +9,7 @@ export async function fetchStudents({ searchText = '', currentPage = 1, pageSize
     pageSize: String(pageSize),
   });
 
-  const res = await fetch(`${API_URL}/GetStudents?${params.toString()}`, {
+  const res = await fetch(`${API_URL}/Student/GetStudents?${params.toString()}`, {
     method: 'GET',
     headers: { accept: '*/*' },
   });
@@ -19,7 +21,7 @@ export async function fetchAllStudents() {
   const params = new URLSearchParams({
   });
 
-  const res = await fetch(`${API_URL}`, {
+  const res = await fetch(`${API_URL}/Student`, {
     method: 'GET',
     headers: { accept: '*/*' },
   });
@@ -36,6 +38,25 @@ export async function createStudent(student) {
   });
   if (!res.ok) throw new Error('Create failed: ' + res.status);
   return res.json();
+}
+
+export async function fetchLogin({ email= '', password = '',  } = {}) {
+  const params = new URLSearchParams({
+    email,
+    password,
+  });
+
+  const res = await fetch(`${API_URL}/Login?${params.toString()}`, {
+    method: 'POST',
+    headers: { accept: '*/*' },
+  });
+   const data = await res.json();
+
+  if (!res.ok) {
+    throw new Error(data.message || "Login failed");
+  }
+
+  return data;
 }
 
 export async function updateStudent(id, student) {

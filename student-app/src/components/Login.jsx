@@ -1,9 +1,33 @@
 import React from "react";
+import { useEffect, useState } from "react";
+import { fetchLogin } from "../api";
+
+//import Login from "./Login";
 
 export default function Login() {
-  const handleSubmit = (e) => {
-    alter("Login Successfully!");
-  };
+  const [error, setError] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassward] = useState("");
+
+const handleSubmit = async (e) => {
+  e.preventDefault();
+
+  setError("");
+
+  try {
+    const data = await fetchLogin({
+      email: email,
+      password: password,
+    });
+
+    console.log("Login API Response:", data);
+
+    alert(data.message || "Login successful!");
+  } catch (error) {
+    console.error("Login Error:", error);
+    setError(error.message);
+  }
+};
   return (
     <div className="container">
       <div className="row justify-content-center mt-5">
@@ -17,7 +41,8 @@ export default function Login() {
 
               <input
                 type="email"
-                id="inputEmail"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 className="form-control"
                 placeholder=""
               />
@@ -26,10 +51,16 @@ export default function Login() {
               <label className="form-label">Password:</label>
               <input
                  type="password"
-                id="inputPassword"
+                 value={password}
+                 onChange={(e) => setPassward(e.target.value)}
                 className="form-control"
                 placeholder=""
               />
+              {error && (
+    <div className="alert alert-danger mt-2">
+      {error}
+    </div>
+  )}
             </div>
             <div className="d-grid">
               <div className="col d-flex justify-content-center gap-2">
