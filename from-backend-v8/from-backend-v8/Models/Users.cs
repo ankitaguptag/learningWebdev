@@ -3,6 +3,6 @@
     public class Users
     {
         public string Email{ set; get; }
-        public string Passward{set;get;}
+        public string Password{set;get;}
     }
 }

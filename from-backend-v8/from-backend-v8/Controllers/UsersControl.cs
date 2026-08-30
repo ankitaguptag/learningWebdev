@@ -1,5 +1,6 @@
 ﻿using from_backend_v8.Data;
 using Microsoft.AspNetCore.Mvc;
+using from_backend_v8.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace from_backend_v8.Controllers
@@ -21,7 +22,7 @@ namespace from_backend_v8.Controllers
             var user = await _context.Users
                 .FirstOrDefaultAsync(u =>
                     u.Email == email &&
-                    u.Passward == password);
+                    u.Password == password);
 
             if (user == null)
             {
@@ -37,5 +38,20 @@ namespace from_backend_v8.Controllers
                 email = user.Email
             });
         }
+
+        [HttpPost]
+        [Route("CreateUser")]
+        public IActionResult CreateUsers(Users user)
+        {
+            _context.Database.ExecuteSqlInterpolated($@"
+        EXEC CreateUser_202608024
+            @Email = {user.Email},
+            @Passward = {user.Password}
+      ");
+
+            return Ok(new { message = "User Created Successfully" });
+        }
+
+
     }
 }
