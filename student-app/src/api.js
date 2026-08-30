@@ -61,7 +61,7 @@ export async function fetchLogin({ email= '', password = '',  } = {}) {
 
 
 export async function createUser(user){
-  const  res = await fetch(`${API_URL}/createUser`,{
+  const  res = await fetch(`${API_URL}/CreateUsers/CreateUser`,{
     method: 'POST',
     headers: {'Content-Type': 'application/json', accept: '*/*'},
      body: JSON.stringify({
@@ -72,11 +72,6 @@ export async function createUser(user){
   if(!res.ok) throw new Error('Created faild:' + res.status);
   return res.json();
 }
-
-
- 
-
-
 
 export async function updateStudent(id, student) {
   const res = await fetch(`${API_URL}/${id}`, {
