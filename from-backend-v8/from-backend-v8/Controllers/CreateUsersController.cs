@@ -51,6 +51,7 @@ namespace from_backend_v8.Controllers
 
     [Route("api/[controller]")]
     [ApiController]
+    [Obsolete]
     public class CreateUsersController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
@@ -92,6 +93,8 @@ namespace from_backend_v8.Controllers
         }
             [HttpPost]
         [Route("createUser")]
+        [Obsolete]
+
         public IActionResult CreateUsers( Users user)
         {
             _context.Database.ExecuteSqlInterpolated($@"

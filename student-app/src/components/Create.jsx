@@ -1,6 +1,7 @@
 import React from "react";
 import { useEffect, useState } from "react";
 import { createUser } from "../api";
+import { Link } from "react-router-dom";
 //import Login from "./Login";
 
 export default function Create() {
@@ -68,6 +69,7 @@ export default function Create() {
                 </button>
               </div>
             </div>
+            <Link to="/Login">Go to Login Page</Link>
           </div>
         </div>
       </div>

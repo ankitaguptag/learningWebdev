@@ -1,7 +1,7 @@
 import React from "react";
 import { useEffect, useState } from "react";
 import { fetchLogin } from "../api";
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, Link } from "react-router-dom";
 
 
 //import Login from "./Login";
@@ -71,6 +71,7 @@ const handleSubmit = async (e) => {
                 </button>
               </div>
             </div>
+              <Link to="/create">Go to Create Page</Link>
           </div>
         </div>
       </div>
