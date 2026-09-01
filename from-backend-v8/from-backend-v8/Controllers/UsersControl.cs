@@ -52,6 +52,16 @@ namespace from_backend_v8.Controllers
             return Ok(new { message = "User Created Successfully" });
         }
 
+        [HttpGet("GetUsers")]
+        public IActionResult GetUsers()
+        {
+    var users = _context.Database
+        .SqlQuery<UserDto>($"EXEC procGetUsers")
+                .ToList();
+
+            return Ok(users);
+        }
+
 
     }
 }

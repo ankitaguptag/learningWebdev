@@ -73,6 +73,18 @@ export async function createUser(user){
   return res.json();
 }
 
+export async function getUsers() {
+  const res = await fetch(`${API_URL}/Login/GetUsers`);
+
+  if (!res.ok) {
+    throw new Error("Failed to get users: " + res.status);
+  }
+
+  return res.json();
+}
+
+
+
 export async function updateStudent(id, student) {
   const res = await fetch(`${API_URL}/${id}`, {
     method: 'PUT',
