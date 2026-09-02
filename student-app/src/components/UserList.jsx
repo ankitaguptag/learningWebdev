@@ -2,8 +2,8 @@
 import React, { useEffect, useState } from "react";
 import { getUsers } from "../api";
 
-function UserList() {
-  const [users, setUsers] = useState([]);
+export default function UserList() {
+  const [users, setUsers] = useState("");
   const [error, setError] = useState("");
 
   useEffect(() => {
@@ -13,8 +13,12 @@ function UserList() {
   const loadUsers = async () => {
     try {
       const data = await getUsers();
+
+      console.log("Users:", data);
+
       setUsers(data);
     } catch (err) {
+      console.error(err);
       setError(err.message);
     }
   };
@@ -38,20 +42,39 @@ function UserList() {
               <tr>
                 <th>#</th>
                 <th>Email</th>
+                <th>Action</th>
               </tr>
             </thead>
 
             <tbody>
               {users.length > 0 ? (
-                users.map((user, index) => (
-                  <tr key={user.id || index}>
-                    <td>{index + 1}</td>
-                    <td>{user.email}</td>
-                  </tr>
-                ))
+                users.map((user, index) => {
+                  const email = user.email ?? user.Email ?? "";
+
+                  return (
+                    <tr key={index}>
+                      <td>{index + 1}</td>
+
+                      <td>
+                        <i className="bi bi-envelope me-1 text-muted"></i>
+                        {email}
+                      </td>
+
+                      <td>
+                        <button className="btn btn-sm btn-primary me-2">
+                          Edit
+                        </button>
+
+                        <button className="btn btn-sm btn-danger">
+                          Delete
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                })
               ) : (
                 <tr>
-                  <td colSpan="2" className="text-center">
+                  <td colSpan="3" className="text-center text-muted">
                     No users found
                   </td>
                 </tr>
@@ -63,5 +86,3 @@ function UserList() {
     </div>
   );
 }
-
-export default UserList;

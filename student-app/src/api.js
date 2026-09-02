@@ -84,7 +84,6 @@ export async function getUsers() {
 }
 
 
-
 export async function updateStudent(id, student) {
   const res = await fetch(`${API_URL}/${id}`, {
     method: 'PUT',
