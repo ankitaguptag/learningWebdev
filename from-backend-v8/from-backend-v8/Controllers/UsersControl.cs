@@ -53,11 +53,11 @@ namespace from_backend_v8.Controllers
         }
 
         [HttpGet("GetUsers")]
-        public IActionResult GetUsers()
+        public async Task<IActionResult> GetUsers()
         {
-    var users = _context.Database
-        .SqlQuery<UserDto>($"EXEC procGetUsers")
-                .ToList();
+            var users = await _context.UserDtos
+                .FromSqlRaw("EXEC procGetUsers")
+                .ToListAsync();
 
             return Ok(users);
         }

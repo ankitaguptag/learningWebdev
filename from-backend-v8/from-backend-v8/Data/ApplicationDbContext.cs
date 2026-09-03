@@ -10,6 +10,7 @@ namespace from_backend_v8.Data
             :base(options) { }
         public DbSet<Student> Students { get; set; }
         public DbSet<Users> Users { get; set; }
+        public DbSet<UserDto> UserDtos { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -23,6 +24,8 @@ namespace from_backend_v8.Data
 
             modelBuilder.Entity<Users>()
                .HasKey(u => u.Email);
+
+
         }
     }
 }
