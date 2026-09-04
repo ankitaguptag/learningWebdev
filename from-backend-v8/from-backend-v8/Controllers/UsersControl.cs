@@ -1,6 +1,7 @@
 ﻿using from_backend_v8.Data;
-using Microsoft.AspNetCore.Mvc;
 using from_backend_v8.Models;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 
 namespace from_backend_v8.Controllers
@@ -61,6 +62,19 @@ namespace from_backend_v8.Controllers
 
             return Ok(users);
         }
+
+
+        [HttpDelete("{id}")]
+        public IActionResult DeleteById(int id)
+        {
+            _context.Database.ExecuteSqlRaw(
+               "EXEC deleteUserId @Id",
+               new SqlParameter("@Id", id)
+           );
+            return Ok();
+
+        }
+
 
 
     }
