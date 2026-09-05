@@ -1,9 +1,9 @@
 
 import React, { useEffect, useState } from "react";
-import { getUsers } from "../api";
+import { getUsers, deleteUser } from "../api";
 
 export default function UserList() {
-  const [users, setUsers] = useState("");
+  const [users, setUsers] = useState([]);
   const [error, setError] = useState("");
 
   useEffect(() => {
@@ -15,8 +15,25 @@ export default function UserList() {
       const data = await getUsers();
 
       console.log("Users:", data);
-
       setUsers(data);
+    } catch (err) {
+      console.error(err);
+      setError(err.message);
+    }
+  };
+
+  const handleDelete = async (id) => {
+    if (!window.confirm("Are you sure you want to delete this user?")) {
+      return;
+    }
+
+    try {
+      await deleteUser(id);
+
+      // Remove deleted user from UI
+      setUsers((prevUsers) =>
+        prevUsers.filter((user) => (user.id ?? user.Id) !== id)
+      );
     } catch (err) {
       console.error(err);
       setError(err.message);
@@ -49,10 +66,11 @@ export default function UserList() {
             <tbody>
               {users.length > 0 ? (
                 users.map((user, index) => {
+                  const id = user.id ?? user.Id;
                   const email = user.email ?? user.Email ?? "";
 
                   return (
-                    <tr key={index}>
+                    <tr key={id}>
                       <td>{index + 1}</td>
 
                       <td>
@@ -65,7 +83,10 @@ export default function UserList() {
                           Edit
                         </button>
 
-                        <button className="btn btn-sm btn-danger">
+                        <button
+                          className="btn btn-sm btn-danger"
+                          onClick={() => handleDelete(id)}
+                        >
                           Delete
                         </button>
                       </td>
@@ -86,3 +107,4 @@ export default function UserList() {
     </div>
   );
 }
+
