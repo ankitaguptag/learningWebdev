@@ -46,12 +46,14 @@ namespace from_backend_v8.Controllers
         {
             _context.Database.ExecuteSqlInterpolated($@"
        EXEC CreateUser_202608024
+                @UserName = {user.UserName},
                 @Email = {user.Email},
             @Passward = {user.Password}
       ");
 
             return Ok(new { message = "User Created Successfully" });
         }
+
 
         [HttpGet("GetUsers")]
         public async Task<IActionResult> GetUsers()

@@ -61,12 +61,14 @@ export async function fetchLogin({ email= '', password = '',  } = {}) {
 
 
 export async function createUser(user){
-  const  res = await fetch(`${API_URL}/CreateUsers/CreateUser`,{
+  const  res = await fetch(`${API_URL}/Login/CreateUser`,{
     method: 'POST',
     headers: {'Content-Type': 'application/json', accept: '*/*'},
-     body: JSON.stringify({
-        email: user.email,
-        password: user.password
+       body: JSON.stringify({
+      userName: user.userName,
+      email: user.email,
+      password: user.password 
+      
       })
   });
   if(!res.ok) throw new Error('Created faild:' + res.status);

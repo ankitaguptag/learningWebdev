@@ -6,8 +6,10 @@ import { Link } from "react-router-dom";
 
 export default function Create() {
   const [error, setError] = useState("");
+  const [name, setUserName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassward] = useState("");
+  
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -15,12 +17,13 @@ export default function Create() {
 
     try {
       const data = await createUser({
+       userName:name,
         email,
         password,
       });
 
       alert(data.message);
-
+      setUserName("");
       setEmail("");
     setPassward("");
     } catch (error) {
@@ -34,6 +37,17 @@ export default function Create() {
         <div className="col-md-4">
           <div className="card shadow p-4">
             <h2 className="text-center mb-4">Create User</h2>
+            <div className="mb-3">
+            <label htmlFor="inputName" className="form-label">
+              User name:
+            </label>
+            <input type="text" 
+            value={name}
+            onChange={(e) => setUserName(e.target.value)}
+            className="form-control"
+             placeholder=""
+            />
+            </div>
             <div className="mb-3">
               <label htmlFor="inputEmail" className="form-label">
                 Email:
