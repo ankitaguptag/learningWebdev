@@ -57,7 +57,8 @@ export default function UserList() {
           <table className="table table-hover align-middle mb-0">
             <thead className="table-light">
               <tr>
-                <th>#</th>
+                <th>id</th>
+                <th>User Name</th>
                 <th>Email</th>
                 <th>Action</th>
               </tr>
@@ -68,10 +69,15 @@ export default function UserList() {
                 users.map((user, index) => {
                   const id = user.id ?? user.Id;
                   const email = user.email ?? user.Email ?? "";
+                  const  userName = user. userName ?? user. userName ?? "";
 
                   return (
                     <tr key={id}>
                       <td>{index + 1}</td>
+                      <td>
+                        <i className="bi bi-envelope me-1 text-muted"></i>
+                        {userName}
+                      </td>
 
                       <td>
                         <i className="bi bi-envelope me-1 text-muted"></i>

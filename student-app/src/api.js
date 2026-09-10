@@ -84,6 +84,7 @@ export async function getUsers() {
 
   return res.json();
 }
+
 export async function deleteUser(id) {
   const res = await fetch(`${API_URL}/Login/${id}`, { method: 'DELETE', headers: { accept: '*/*' } });
   if (!res.ok) throw new Error('Delete failed: ' + res.status);
