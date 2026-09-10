@@ -1,0 +1,83 @@
+﻿using from_backend_v8.Data;
+using from_backend_v8.Models;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
+
+namespace from_backend_v8.Controllers
+{
+    [Route("api/[controller]")]
+    [ApiController]
+    public class LoginController : ControllerBase
+    {
+        private readonly ApplicationDbContext _context;
+
+        public LoginController(ApplicationDbContext context)
+        {
+            _context = context;
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Login(string email, string password)
+        {
+            var user = await _context.Users
+                .FirstOrDefaultAsync(u =>
+                    u.Email == email &&
+                    u.Password == password);
+
+            if (user == null)
+            {
+                return Unauthorized(new
+                {
+                    message = "Invalid email or password"
+                });
+            }
+
+            return Ok(new
+            {
+                message = "Login successful",
+                email = user.Email
+            });
+        }
+
+        [HttpPost]
+        [Route("CreateUser")]
+        public IActionResult CreateUsers(Users user)
+        {
+            _context.Database.ExecuteSqlInterpolated($@"
+       EXEC CreateUser_202608024
+                @UserName = {user.UserName},
+                @Email = {user.Email},
+            @Passward = {user.Password}
+      ");
+
+            return Ok(new { message = "User Created Successfully" });
+        }
+
+
+        [HttpGet("GetUsers")]
+        public async Task<IActionResult> GetUsers()
+        {
+            var users = await _context.UserDtos
+                .FromSqlRaw("EXEC procGetUsers")
+                .ToListAsync();
+
+            return Ok(users);
+        }
+
+
+        [HttpDelete("{id}")]
+        public IActionResult DeleteById(int id)
+        {
+            _context.Database.ExecuteSqlRaw(
+               "EXEC deleteUserId @Id",
+               new SqlParameter("@Id", id)
+           );
+            return Ok();
+
+        }
+
+
+
+    }
+}
