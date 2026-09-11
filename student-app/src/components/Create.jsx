@@ -8,7 +8,7 @@ export default function Create() {
   const [error, setError] = useState("");
   const [name, setUserName] = useState("");
   const [email, setEmail] = useState("");
-  const [password, setPassward] = useState("");
+  const [password, setPassword] = useState("");
   
 
   const handleSubmit = async (e) => {
@@ -25,7 +25,7 @@ export default function Create() {
       alert(data.message);
       setUserName("");
       setEmail("");
-    setPassward("");
+    setPassword("");
     } catch (error) {
       console.error(error);
       setError(error.message);
@@ -66,7 +66,7 @@ export default function Create() {
               <input
                  type="password"
                  value={password}
-                 onChange={(e) => setPassward(e.target.value)}
+                 onChange={(e) => setPassword(e.target.value)}
                 className="form-control"
                 placeholder=""
               />
