@@ -45,10 +45,10 @@ namespace from_backend_v8.Controllers
         public IActionResult CreateUsers(Users user)
         {
             _context.Database.ExecuteSqlInterpolated($@"
-       EXEC CreateUser_202608024
+       EXEC CreateUser_20260911
                 @UserName = {user.UserName},
                 @Email = {user.Email},
-            @Passward = {user.Password}
+            @Password = {user.Password}
       ");
 
             return Ok(new { message = "User Created Successfully" });
