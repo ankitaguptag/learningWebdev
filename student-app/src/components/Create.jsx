@@ -2,6 +2,7 @@ import React from "react";
 import { useEffect, useState } from "react";
 import { createUser } from "../api";
 import { Link } from "react-router-dom";
+import { useNavigate } from 'react-router-dom';
 //import Login from "./Login";
 
 export default function Create() {
@@ -9,11 +10,13 @@ export default function Create() {
   const [name, setUserName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const navigate = useNavigate();
   
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
+   // e.preventDefault();
     setError("");
+    navigate('/UserList');
 
     try {
       const data = await createUser({
