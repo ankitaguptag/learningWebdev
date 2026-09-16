@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { createUser } from "../api";
 import { Link } from "react-router-dom";
 import { useNavigate } from 'react-router-dom';
+import bcrypt from 'bcryptjs';
 //import Login from "./Login";
 
 export default function Create() {
@@ -11,7 +12,7 @@ export default function Create() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
-  
+  const [hashedOutput, setHashedOutput] = useState('');
 
   const handleSubmit = async (e) => {
    // e.preventDefault();
@@ -19,12 +20,15 @@ export default function Create() {
     navigate('/UserList');
 
     try {
+      const salt = bcrypt.genSaltSync(10); 
+      const hash = bcrypt.hashSync(password, salt);
       const data = await createUser({
        userName:name,
         email,
-        password,
+        password : hash,
       });
 
+      
       alert(data.message);
       setUserName("");
       setEmail("");
