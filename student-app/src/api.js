@@ -85,6 +85,26 @@ export async function getUsers() {
   return res.json();
 }
 
+export const updateUser = async (id, userName) => {
+  const response = await fetch(`${API_URL}/Login/${id}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      userName: userName
+    })
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to update user");
+  }
+
+  return await response.json();
+};
+
+
+
 export async function deleteUser(id) {
   const res = await fetch(`${API_URL}/Login/${id}`, { method: 'DELETE', headers: { accept: '*/*' } });
   if (!res.ok) throw new Error('Delete failed: ' + res.status);

@@ -65,6 +65,31 @@ namespace from_backend_v8.Controllers
             return Ok(users);
         }
 
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateUser(int id, [FromBody] UserUpdateDto user)
+        {
+            try
+            {
+                await _context.Database.ExecuteSqlRawAsync(
+                    "EXEC UpdateUsers @Id = {0}, @UserName = {1}",
+                    id,
+                    user.UserName
+                );
+
+                return Ok(new
+                {
+                    message = "User updated successfully"
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new
+                {
+                    message = ex.Message
+                });
+            }
+        }
+
 
         [HttpDelete("{id}")]
         public IActionResult DeleteById(int id)
