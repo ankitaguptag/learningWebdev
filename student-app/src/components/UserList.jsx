@@ -1,10 +1,6 @@
 
 import React, { useEffect, useState } from "react";
-import {
-  getUsers,
-  deleteUser,
-  updateUser
-} from "../api";
+import { getUsers, deleteUser, updateUser } from "../api";
 
 export default function UserList() {
   const [users, setUsers] = useState([]);
