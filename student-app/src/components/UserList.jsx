@@ -5,6 +5,7 @@ import { getUsers, deleteUser, updateUser } from "../api";
 export default function UserList() {
   const [users, setUsers] = useState([]);
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
 
   const [editingId, setEditingId] = useState(null);
   const [editUserName, setEditUserName] = useState("");
@@ -24,24 +25,18 @@ export default function UserList() {
       setError(err.message);
     }
   };
-
-  // Click Edit
   const handleEdit = (id, userName) => {
     setEditingId(id);
     setEditUserName(userName);
   };
-
-  // Click Save
   const handleSave = async (id) => {
     if (!editUserName.trim()) {
       setError("User Name is required");
       return;
     }
-
     try {
       await updateUser(id, editUserName);
 
-      // Update UI
       setUsers((prevUsers) =>
         prevUsers.map((user) => {
           const userId = user.id ?? user.Id;
@@ -65,15 +60,14 @@ export default function UserList() {
       console.error(err);
       setError(err.message);
     }
+    setSuccess("Save successful");
   };
 
-  // Cancel Edit
   const handleCancel = () => {
     setEditingId(null);
     setEditUserName("");
   };
 
-  // Delete
   const handleDelete = async (id) => {
     if (!window.confirm("Are you sure you want to delete this user?")) {
       return;
@@ -101,6 +95,11 @@ export default function UserList() {
           {error}
         </div>
       )}
+      {success && (
+  <div className="alert alert-success">
+    {success}
+  </div>
+)}
 
       <div className="card shadow-sm">
         <div className="card-body">
