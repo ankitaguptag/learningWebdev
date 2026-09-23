@@ -6,10 +6,31 @@ export default function UserList() {
   const [users, setUsers] = useState([]);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
-
   const [editingId, setEditingId] = useState(null);
   const [editUserName, setEditUserName] = useState("");
+ const [currentPage, setCurrentPage] = useState(1);
+const pageSize = 10;
 
+const totalPages = Math.max(1, Math.ceil(users.length / pageSize));
+
+const startIndex = (currentPage - 1) * pageSize;
+
+const paginatedUsers = users.slice(
+  startIndex,
+  startIndex + pageSize
+);
+
+const nextPage = () => {
+  if (currentPage < totalPages) {
+    setCurrentPage((prev) => prev + 1);
+  }
+};
+
+const previousPage = () => {
+  if (currentPage > 1) {
+    setCurrentPage((prev) => prev - 1);
+  }
+};
   useEffect(() => {
     loadUsers();
   }, []);
@@ -218,6 +239,39 @@ export default function UserList() {
             </tbody>
 
           </table>
+          <nav aria-label="Page navigation" className="mt-4">
+        <ul className="pagination justify-content-center">
+          <li className={`page-item ${currentPage === 1 ? "disabled" : ""}`}>
+            <button
+              className="page-link"
+              onClick={previousPage}
+              disabled={currentPage === 1}
+            >
+              Previous
+            </button>
+          </li>
+
+          <li className="page-item disabled">
+            <span className="page-link">
+              Page {currentPage} of {totalPages}
+            </span>
+          </li>
+
+          <li
+            className={`page-item ${
+              currentPage === totalPages ? "disabled" : ""
+            }`}
+          >
+            <button
+              className="page-link"
+              onClick={nextPage}
+              disabled={currentPage === totalPages}
+            >
+              Next
+            </button>
+          </li>
+        </ul>
+      </nav>
 
         </div>
       </div>

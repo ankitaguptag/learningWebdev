@@ -56,10 +56,23 @@ namespace from_backend_v8.Controllers
 
 
         [HttpGet("GetUsers")]
-        public async Task<IActionResult> GetUsers()
+        public async Task<IActionResult> GetUsers(
+              string? searchText,
+              int currentPage = 1,
+              int pageSize = 10
+            )
+
         {
             var users = await _context.UserDtos
-                .FromSqlRaw("EXEC procGetUsers")
+                .FromSqlRaw(@"Exec procGetUserPagination
+                @PageSize,
+                @CurrentPage,
+                @SearchText",
+                new SqlParameter("@PageSize", pageSize),
+                    new SqlParameter("@CurrentPage", currentPage),
+                    new SqlParameter("@SearchText",
+                        (object?)searchText ?? DBNull.Value)
+                )
                 .ToListAsync();
 
             return Ok(users);

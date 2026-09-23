@@ -40,10 +40,13 @@ export async function createStudent(student) {
   return res.json();
 }
 
-export async function fetchLogin({ email= '', password = '',  } = {}) {
+export async function fetchLogin({ email= '', password = '', searchText = '', currentPage = 1, pageSize = 5 } = {}) {
   const params = new URLSearchParams({
     email,
     password,
+    searchText,
+    currentPage: String(currentPage),
+    pageSize: String(pageSize),
   });
 
   const res = await fetch(`${API_URL}/Login?${params.toString()}`, {

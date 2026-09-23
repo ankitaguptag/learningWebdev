@@ -32,7 +32,7 @@ export default function Create() {
       alert(data.message);
       setUserName("");
       setEmail("");
-    setPassword("");
+     setPassword("");
     } catch (error) {
       console.error(error);
       setError(error.message);
