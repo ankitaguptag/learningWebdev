@@ -1,7 +1,4 @@
 const API_URL = 'https://localhost:7222/api';
-
-
-
 export async function fetchStudents({ searchText = '', currentPage = 1, pageSize = 5 } = {}) {
   const params = new URLSearchParams({
     searchText,
